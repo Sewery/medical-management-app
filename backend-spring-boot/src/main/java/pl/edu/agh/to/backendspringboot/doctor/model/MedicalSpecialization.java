@@ -2,29 +2,29 @@ package pl.edu.agh.to.backendspringboot.doctor.model;
 
 public enum MedicalSpecialization {
 
-    INTERNAL_MEDICINE("Internal Medicine"),
-    FAMILY_MEDICINE("Family Medicine"),
-    PEDIATRICS("Pediatrics"),
-    ALLERGOLOGY("Allergology"),
-    ANESTHESIOLOGY("Anesthesiology"),
-    CARDIOLOGY("Cardiology"),
-    DERMATOLOGY("Dermatology"),
-    ENDOCRINOLOGY("Endocrinology"),
-    GASTROENTEROLOGY("Gastroenterology"),
-    GENERAL_SURGERY("General Surgery"),
-    GYNECOLOGY("Gynecology"),
-    NEUROLOGY("Neurology"),
-    ONCOLOGY("Oncology"),
-    OPHTHALMOLOGY("Ophthalmology"),
-    ORTHOPEDICS("Orthopedics"),
-    OTOLARYNGOLOGY("Otolaryngology"),
-    PSYCHIATRY("Psychiatry"),
-    PULMONOLOGY("Pulmonology"),
-    RADIOLOGY("Radiology"),
-    RHEUMATOLOGY("Rheumatology"),
-    UROLOGY("Urology"),
-    DENTISTRY("Dentistry"),
-    NONE("None");
+    INTERNAL_MEDICINE("Choroby wewnętrzne"),
+    FAMILY_MEDICINE("Medycyna rodzinna"),
+    PEDIATRICS("Pediatria"),
+    ALLERGOLOGY("Alergologia"),
+    ANESTHESIOLOGY("Anestezjologia"),
+    CARDIOLOGY("Kardiologia"),
+    DERMATOLOGY("Dermatologia"),
+    ENDOCRINOLOGY("Endokrynologia"),
+    GASTROENTEROLOGY("Gastroenterologia"),
+    GENERAL_SURGERY("Chirurgia ogólna"),
+    GYNECOLOGY("Ginekologia"),
+    NEUROLOGY("Neurologia"),
+    ONCOLOGY("Onkologia"),
+    OPHTHALMOLOGY("Okulistyka"),
+    ORTHOPEDICS("Ortopedia"),
+    OTOLARYNGOLOGY("Otolaryngologia"), // Laryngologia
+    PSYCHIATRY("Psychiatria"),
+    PULMONOLOGY("Pulmonologia"),
+    RADIOLOGY("Radiologia"),
+    RHEUMATOLOGY("Reumatologia"),
+    UROLOGY("Urologia"),
+    DENTISTRY("Stomatologia"),
+    NONE("Brak"); // Dodana polska nazwa dla NONE
 
     private final String name;
 
