@@ -28,4 +28,12 @@ public class DoctorService {
     public DoctorInfo getDoctorInfoById(Integer id) {
         return doctorRepository.findDoctorInfoById(id).orElseThrow(()->new DoctorNotFoundException("Doctor with id "+id+" not found"));
     }
+
+    public boolean deleteDoctorById(Integer id) {
+        if(doctorRepository.existsById(id)){
+            doctorRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

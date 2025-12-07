@@ -86,4 +86,35 @@ class DoctorServiceTest {
         verify(doctorRepository).findDoctorInfoById(doctorId);
     }
 
+    @Test
+    void shouldDeleteDoctorByIdWhenExists() {
+        // given
+        Integer doctorId = 1;
+        when(doctorRepository.existsById(doctorId)).thenReturn(true);
+        doNothing().when(doctorRepository).deleteById(doctorId);
+
+        // when
+        boolean result = doctorService.deleteDoctorById(doctorId);
+
+        // then
+        assertTrue(result);
+        verify(doctorRepository).existsById(doctorId);
+        verify(doctorRepository).deleteById(doctorId);
+    }
+
+    @Test
+    void shouldNotDeleteDoctorByIdWhenDoesNotExist() {
+        // given
+        Integer doctorId = 999;
+        when(doctorRepository.existsById(doctorId)).thenReturn(false);
+
+        // when
+        boolean result = doctorService.deleteDoctorById(doctorId);
+
+        // then
+        assertFalse(result);
+        verify(doctorRepository).existsById(doctorId);
+        verify(doctorRepository, never()).deleteById(anyInt());
+    }
+
 }

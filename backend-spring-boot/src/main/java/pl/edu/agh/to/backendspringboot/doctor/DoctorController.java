@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.edu.agh.to.backendspringboot.doctor.exception.DoctorNotFoundException;
@@ -46,6 +47,15 @@ public class DoctorController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getLocalizedMessage());
 
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDoctorById(@PathVariable Integer id){
+        if(!doctorService.deleteDoctorById(id)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor with id "+id+" not found");
+        }
+        return new ResponseEntity<>("Doctor with id "+id+" deleted successfully", HttpStatus.OK);
+
     }
 
     public record DoctorRequest(
