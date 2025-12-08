@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doctors")
+@CrossOrigin(origins = "http://localhost:3000")
 public class DoctorController {
     private final DoctorService doctorService;
 
@@ -31,6 +32,12 @@ public class DoctorController {
         }catch(InvalidMedicalSpecialization e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDoctor(@PathVariable Integer id) {
+        doctorService.deleteDoctorByID(id); // Zakładając, że serwis ma taką metodę
     }
 
     @GetMapping
@@ -87,12 +94,14 @@ public class DoctorController {
 
     }
     public record DoctorBriefResponse(
+            Integer id,
             String firstName,
             String lastName,
             String specialization
     ){
         public static DoctorBriefResponse from(DoctorBrief doctor){
             return new DoctorBriefResponse(
+                    doctor.getId(),
                     doctor.getFirstName(),
                     doctor.getLastName(),
                     doctor.getSpecialization().toString()
@@ -101,26 +110,26 @@ public class DoctorController {
     }
 
     public record DoctorInfoResponse(
+            Integer id,
             String firstName,
             String lastName,
             String specialization,
+            String pesel,
             String postalCode,
             String street,
             String city
     ){
         public static DoctorInfoResponse from(DoctorInfo doctor){
             return new DoctorInfoResponse(
+                    doctor.getId(),
                     doctor.getFirstName(),
                     doctor.getLastName(),
                     doctor.getSpecialization().toString(),
+                    doctor.getPesel(),
                     doctor.getAddress().getPostalCode(),
                     doctor.getAddress().getStreet(),
                     doctor.getAddress().getCity()
             );
         }
     }
-
-
-
-
 }

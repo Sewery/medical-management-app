@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "bc83a70d-2258-41c1-b444-738872e28e5e",
+		"name": "Doctors API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40345614"
+	},
+	"item": [
+		{
+			"name": "Add Doctor",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Anna\",\n    \"lastName\": \"Kowalska\",\n    \"pesel\": \"91010112345\",\n    \"specialization\": \"PEDIATRICS\",\n    \"street\": \"Kwiatowa 5/1\",\n    \"city\": \"Kraków\",\n    \"postalCode\": \"30-001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/doctors",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"doctors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Doctor List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/doctors",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"doctors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Doctor Info By ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/doctors/{{doctorId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"doctors",
+						"{{doctorId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Doctor By ID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/doctors/{{doctorId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"doctors",
+						"{{doctorId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "doctorId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

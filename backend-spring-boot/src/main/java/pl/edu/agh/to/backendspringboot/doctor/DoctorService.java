@@ -6,6 +6,7 @@ import pl.edu.agh.to.backendspringboot.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.doctor.model.DoctorInfo;
 
+import javax.print.Doc;
 import java.util.List;
 
 @Service
@@ -20,6 +21,7 @@ public class DoctorService {
         doctorRepository.save(doctor);
     }
 
+    public void deleteDoctorByID(Integer doctorID) { doctorRepository.deleteById(doctorID); }
 
     public List<DoctorBrief> getDoctors() {
         return doctorRepository.findDoctorsBrief();
