@@ -34,12 +34,6 @@ public class DoctorController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteDoctor(@PathVariable Integer id) {
-        doctorService.deleteDoctorByID(id); // Zakładając, że serwis ma taką metodę
-    }
-
     @GetMapping
     public List<DoctorBriefResponse> getDoctors(){
         return doctorService.getDoctors().stream().map(DoctorBriefResponse::from).toList();
