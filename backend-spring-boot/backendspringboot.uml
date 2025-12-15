@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>C:/Users/wojpa/OneDrive/stu/TO/DK_WT_09-45_TWL/backend-spring-boot/src/main/java/pl/edu/agh/to/backendspringboot</OriginalElement>
+  <nodes>
+    <node x="546.5" y="766.5">pl.edu.agh.to.backendspringboot.DatabaseInitializer</node>
+    <node x="440.0" y="1490.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse</node>
+    <node x="532.5" y="146.0">pl.edu.agh.to.backendspringboot.BackendSpringBootApplication</node>
+    <node x="363.5" y="298.5">pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization</node>
+    <node x="337.5" y="982.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest</node>
+    <node x="31.5" y="1278.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse</node>
+    <node x="362.0" y="606.5">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo</node>
+    <node x="-162.5283125707814" y="169.5">pl.edu.agh.to.backendspringboot.DatabaseClean</node>
+    <node x="-365.8680634201585" y="1848.4190260475652">pl.edu.agh.to.backendspringboot.GlobalExceptionHandler</node>
+    <node x="198.5" y="790.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.Address</node>
+    <node x="556.5" y="398.5">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief</node>
+    <node x="46.0" y="298.5">pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException</node>
+    <node x="59.5" y="446.5">pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository</node>
+    <node x="357.0" y="1829.5">pl.edu.agh.to.backendspringboot.presentation.doctor.DoctorController</node>
+    <node x="-130.0" y="994.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor</node>
+    <node x="-135.0" y="569.5">pl.edu.agh.to.backendspringboot.application.doctor.DoctorService</node>
+    <node x="-141.0" y="1562.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief" relationship="INTERFACE_GENERALIZATION">
+      <point x="0.0" y="-43.5" />
+      <point x="439.0" y="430.0" />
+      <point x="691.0" y="430.0" />
+      <point x="0.0" y="67.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.41108007448789574" showDependencies="false" x="355.9999999999998" y="1052.163080407701" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Inner Classes</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
