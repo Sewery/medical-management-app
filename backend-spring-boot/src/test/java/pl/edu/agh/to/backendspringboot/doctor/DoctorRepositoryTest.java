@@ -3,7 +3,8 @@ package pl.edu.agh.to.backendspringboot.doctor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import pl.edu.agh.to.backendspringboot.doctor.model.*;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.*;
+import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 
 import java.util.List;
 import java.util.Optional;

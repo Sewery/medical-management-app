@@ -1,10 +1,10 @@
-package pl.edu.agh.to.backendspringboot.doctor;
+package pl.edu.agh.to.backendspringboot.infrastructure.doctor;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import pl.edu.agh.to.backendspringboot.doctor.model.Doctor;
-import pl.edu.agh.to.backendspringboot.doctor.model.DoctorBrief;
-import pl.edu.agh.to.backendspringboot.doctor.model.DoctorInfo;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo;
 
 import java.util.List;
 import java.util.Optional;

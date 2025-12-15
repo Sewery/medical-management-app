@@ -3,10 +3,7 @@ package pl.edu.agh.to.backendspringboot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import pl.edu.agh.to.backendspringboot.doctor.DoctorRepository;
-import pl.edu.agh.to.backendspringboot.doctor.model.Address;
-import pl.edu.agh.to.backendspringboot.doctor.model.Doctor;
-import pl.edu.agh.to.backendspringboot.doctor.model.MedicalSpecialization;
+import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 
 @SpringBootApplication
 public class DatabaseClean {

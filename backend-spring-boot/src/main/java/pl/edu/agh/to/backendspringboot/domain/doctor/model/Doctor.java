@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.doctor.model;
+package pl.edu.agh.to.backendspringboot.domain.doctor.model;
 
 import jakarta.persistence.*;
 

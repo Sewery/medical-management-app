@@ -1,0 +1,19 @@
+package pl.edu.agh.to.backendspringboot.shared.doctor.dto;
+
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
+
+public record DoctorBriefResponse(
+        Integer id,
+        String firstName,
+        String lastName,
+        String specialization
+){
+    public static DoctorBriefResponse from(DoctorBrief doctor){
+        return new DoctorBriefResponse(
+                doctor.getId(),
+                doctor.getFirstName(),
+                doctor.getLastName(),
+                doctor.getSpecialization().toString()
+        );
+    }
+}

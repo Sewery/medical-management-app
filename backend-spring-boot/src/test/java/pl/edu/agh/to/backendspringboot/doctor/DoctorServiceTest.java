@@ -5,8 +5,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.edu.agh.to.backendspringboot.doctor.exception.DoctorNotFoundException;
-import pl.edu.agh.to.backendspringboot.doctor.model.*;
+import pl.edu.agh.to.backendspringboot.application.doctor.DoctorService;
+import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse;
+import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest;
+import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo;
+import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +37,22 @@ class DoctorServiceTest {
     void shouldAddDoctorSuccessfully() {
         // given
         Address address = new Address("Oak St", "Boston", "32-344");
-        Doctor doctor = new Doctor("Jane", "Smith", "98765432109", address, MedicalSpecialization.INTERNAL_MEDICINE);
+        DoctorRequest doctorRequest = new DoctorRequest(
+                "Jane",
+                "Smith",
+                "98765432109",
+                "INTERNAL_MEDICINE",
+                "Oak St",
+                "Boston",
+                "32-344"
+        );
+        Doctor doctor = DoctorRequest.toEntity(doctorRequest);
+
 
         when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
 
         // when
-        doctorService.addDoctor(doctor);
+        doctorService.addDoctor(doctorRequest);
 
         // then
         verify(doctorRepository).save(doctor);
@@ -49,7 +67,7 @@ class DoctorServiceTest {
         when(doctorRepository.findDoctorsBrief()).thenReturn(List.of(brief1, brief2));
 
         // when
-        List<DoctorBrief> doctors = doctorService.getDoctors();
+        List<DoctorBriefResponse> doctors = doctorService.getDoctors();
 
         // then
         assertThat(doctors).hasSize(2);
@@ -67,11 +85,11 @@ class DoctorServiceTest {
         when(doctorRepository.findDoctorInfoById(doctorId)).thenReturn(Optional.of(doctorInfo));
 
         // when
-        DoctorInfo result = doctorService.getDoctorInfoById(doctorId);
+        DoctorInfoResponse result = doctorService.getDoctorInfoById(doctorId);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo("John");
+        assertThat(result.firstName()).isEqualTo("John");
         verify(doctorRepository).findDoctorInfoById(doctorId);
     }
 
@@ -94,25 +112,21 @@ class DoctorServiceTest {
         doNothing().when(doctorRepository).deleteById(doctorId);
 
         // when
-        boolean result = doctorService.deleteDoctorById(doctorId);
+        doctorService.deleteDoctorById(doctorId);
 
         // then
-        assertTrue(result);
         verify(doctorRepository).existsById(doctorId);
         verify(doctorRepository).deleteById(doctorId);
     }
 
     @Test
-    void shouldNotDeleteDoctorByIdWhenDoesNotExist() {
+    void shouldThrowDoctorNotFoundExceptionWhenDeletingNonExistentDoctor() {
         // given
         Integer doctorId = 999;
         when(doctorRepository.existsById(doctorId)).thenReturn(false);
 
-        // when
-        boolean result = doctorService.deleteDoctorById(doctorId);
-
-        // then
-        assertFalse(result);
+        // when & then
+        assertThrows(DoctorNotFoundException.class, () -> doctorService.deleteDoctorById(doctorId));
         verify(doctorRepository).existsById(doctorId);
         verify(doctorRepository, never()).deleteById(anyInt());
     }
