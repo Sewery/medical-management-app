@@ -3,19 +3,16 @@ package pl.edu.agh.to.backendspringboot.presentation.doctor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.edu.agh.to.backendspringboot.application.doctor.DoctorService;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization;
 
@@ -88,7 +85,7 @@ public class DoctorController {
      * Pobiera szczegółowe informacje o konkretnym lekarzu na podstawie jego identyfikatora.
      *
      * @param id Unikalny identyfikator lekarza.
-     * @return Obiekt {@link DoctorInfoResponse} zawierający szczegółowe dane lekarza.
+     * @return Obiekt {@link DoctorDetailResponse} zawierający szczegółowe dane lekarza.
      * @throws ResponseStatusException (HttpStatus.NOT_FOUND) jeśli lekarz o podanym ID nie istnieje.
      */
     @Operation(summary = "Pobierz szczegóły lekarza", description = "Zwraca pełne informacje o lekarzu na podstawie jego ID.")
@@ -97,7 +94,7 @@ public class DoctorController {
             @ApiResponse(responseCode = "404", description = "Lekarz o podanym ID nie istnieje", content = @Content)
     })
     @GetMapping("/{id}")
-    public DoctorInfoResponse getDoctorById(@PathVariable Integer id) {
+    public DoctorDetailResponse getDoctorById(@PathVariable Integer id) {
         try {
             return doctorService.getDoctorInfoById(id);
         } catch (DoctorNotFoundException e) {

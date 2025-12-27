@@ -1,8 +1,8 @@
-package pl.edu.agh.to.backendspringboot.shared.doctor.dto;
+package pl.edu.agh.to.backendspringboot.presentation.doctor.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail;
 
-public record DoctorInfoResponse(
+public record DoctorDetailResponse(
         Integer id,
         String firstName,
         String lastName,
@@ -12,8 +12,8 @@ public record DoctorInfoResponse(
         String street,
         String city
 ){
-    public static DoctorInfoResponse from(DoctorInfo doctor){
-        return new DoctorInfoResponse(
+    public static DoctorDetailResponse from(DoctorDetail doctor){
+        return new DoctorDetailResponse(
                 doctor.getId(),
                 doctor.getFirstName(),
                 doctor.getLastName(),

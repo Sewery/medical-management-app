@@ -6,14 +6,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.agh.to.backendspringboot.application.doctor.DoctorService;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 
 import java.util.List;
@@ -78,14 +78,14 @@ class DoctorServiceTest {
     void shouldGetDoctorInfoByIdWhenExists() {
         // given
         Integer doctorId = 1;
-        DoctorInfo doctorInfo = mock(DoctorInfo.class);
+        DoctorDetail doctorDetail = mock(DoctorDetail.class);
 
-        when(doctorInfo.getFirstName()).thenReturn("John");
+        when(doctorDetail.getFirstName()).thenReturn("John");
 
-        when(doctorRepository.findDoctorInfoById(doctorId)).thenReturn(Optional.of(doctorInfo));
+        when(doctorRepository.findDoctorInfoById(doctorId)).thenReturn(Optional.of(doctorDetail));
 
         // when
-        DoctorInfoResponse result = doctorService.getDoctorInfoById(doctorId);
+        DoctorDetailResponse result = doctorService.getDoctorInfoById(doctorId);
 
         // then
         assertThat(result).isNotNull();

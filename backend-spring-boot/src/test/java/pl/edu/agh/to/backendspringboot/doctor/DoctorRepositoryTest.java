@@ -40,7 +40,7 @@ class DoctorRepositoryTest {
         doctor = doctorRepository.save(doctor); // Save returns the entity with generated ID
 
         // when
-        Optional<DoctorInfo> result = doctorRepository.findDoctorInfoById(doctor.getId());
+        Optional<DoctorDetail> result = doctorRepository.findDoctorInfoById(doctor.getId());
 
         // then
         assertThat(result).isPresent();

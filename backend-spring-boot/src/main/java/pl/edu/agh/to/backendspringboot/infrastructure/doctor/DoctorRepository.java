@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo;
+import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,5 +15,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
     List<DoctorBrief> findDoctorsBrief();
 
     @Query("select d.id as id, d.firstName as firstName, d.lastName as lastName, d.specialization as specialization, d.address as address, d.pesel as pesel from Doctor d where d.id = :id")
-    Optional<DoctorInfo> findDoctorInfoById(Integer id);
+    Optional<DoctorDetail> findDoctorInfoById(Integer id);
 }

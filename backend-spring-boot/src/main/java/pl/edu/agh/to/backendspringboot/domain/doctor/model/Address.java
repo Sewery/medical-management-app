@@ -1,11 +1,15 @@
 package pl.edu.agh.to.backendspringboot.domain.doctor.model;
 
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotBlank;
 
 @Embeddable
 public class Address {
+    @NotBlank
     private String street;
+    @NotBlank
     private String city;
+    @NotBlank
     private String postalCode;
 
     public Address() {

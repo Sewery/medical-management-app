@@ -2,9 +2,9 @@ package pl.edu.agh.to.backendspringboot.application.doctor;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 
 import java.util.List;
@@ -51,11 +51,11 @@ public class DoctorService {
      * Pobiera szczegółowe informacje o lekarzu na podstawie jego identyfikatora.
      *
      * @param id Unikalny identyfikator lekarza.
-     * @return Obiekt {@link DoctorInfoResponse} zawierający pełne dane lekarza.
+     * @return Obiekt {@link DoctorDetailResponse} zawierający pełne dane lekarza.
      * @throws DoctorNotFoundException jeśli lekarz o podanym identyfikatorze nie zostanie znaleziony.
      */
-    public DoctorInfoResponse getDoctorInfoById(Integer id) {
-        return doctorRepository.findDoctorInfoById(id).map(DoctorInfoResponse::from)
+    public DoctorDetailResponse getDoctorInfoById(Integer id) {
+        return doctorRepository.findDoctorInfoById(id).map(DoctorDetailResponse::from)
                 .orElseThrow(()->new DoctorNotFoundException("Doctor with id "+id+" not found"));
     }
 

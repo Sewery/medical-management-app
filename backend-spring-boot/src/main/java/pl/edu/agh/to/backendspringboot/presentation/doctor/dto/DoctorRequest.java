@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.shared.doctor.dto;
+package pl.edu.agh.to.backendspringboot.presentation.doctor.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
