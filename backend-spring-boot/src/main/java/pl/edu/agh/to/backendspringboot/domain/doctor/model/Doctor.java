@@ -27,6 +27,9 @@ public class Doctor {
     @NotNull
     private MedicalSpecialization specialization;
 
+    @OneToMany(mappedBy = "doctor")
+    private Set<Schedule> schedules;
+
     public Doctor() {
     }
 
