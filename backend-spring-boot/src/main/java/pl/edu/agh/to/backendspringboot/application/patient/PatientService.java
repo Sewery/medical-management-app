@@ -35,7 +35,6 @@ public class PatientService {
      * @param patientRequest Obiekt zawierający dane niezbędne do utworzenia pacjenta.
      */
     public void addPatient(PatientRequest patientRequest) {
-        // SPRAWDZENIE UNIKALNOŚCI:
         if (patientRepository.existsByPesel(patientRequest.pesel())) {
             throw new PatientAlreadyExistsException("Patient with PESEL " + patientRequest.pesel() + " already exists");
         }
@@ -50,9 +49,7 @@ public class PatientService {
      * @return Lista skróconych informacji o pacjentach.
      */
     public List<PatientBriefResponse> getPatients() {
-        // Używam findAll(), zakładając że nie masz jeszcze dedykowanej metody findPatientsBrief() w repozytorium
-        // Jeśli masz, zamień findAll() na findPatientsBrief()
-        return patientRepository.findAll().stream()
+        return patientRepository.findPatientsBrief().stream()
                 .map(PatientBriefResponse::from)
                 .toList();
     }

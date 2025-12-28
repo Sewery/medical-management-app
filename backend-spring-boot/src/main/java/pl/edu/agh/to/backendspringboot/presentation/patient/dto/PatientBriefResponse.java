@@ -1,19 +1,17 @@
 package pl.edu.agh.to.backendspringboot.presentation.patient.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.patient.model.Patient;
+import pl.edu.agh.to.backendspringboot.domain.patient.model.PatientBrief;
 
 public record PatientBriefResponse(
         Integer id,
         String firstName,
-        String lastName,
-        String pesel
+        String lastName
 ) {
-    public static PatientBriefResponse from(Patient patient) {
+    public static PatientBriefResponse from(PatientBrief patient) {
         return new PatientBriefResponse(
                 patient.getId(),
                 patient.getFirstName(),
-                patient.getLastName(),
-                patient.getPesel()
+                patient.getLastName()
         );
     }
 }
