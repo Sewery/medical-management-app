@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.edu.agh.to.backendspringboot.application.patient.PatientService;
+import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse;
@@ -65,22 +66,19 @@ public class PatientController {
         }
     }
 
-    /**
-     * Dodaje nowego pacjenta do systemu.
-     *
-     * @param patientRequest Obiekt DTO zawierający dane pacjenta i adres.
-     * @throws ResponseStatusException (HttpStatus.BAD_REQUEST) w przypadku błędnych danych.
-     */
     @Operation(summary = "Dodaj pacjenta", description = "Tworzy nowego pacjenta w systemie.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pacjent został pomyślnie utworzony"),
-            @ApiResponse(responseCode = "400", description = "Nieprawidłowe dane wejściowe")
+            @ApiResponse(responseCode = "400", description = "Nieprawidłowe dane wejściowe"),
+            @ApiResponse(responseCode = "409", description = "Konflikt - pacjent z takim numerem PESEL już istnieje")
     })
     @PostMapping
     public void addPatient(@Valid @RequestBody PatientRequest patientRequest) {
-        // Tu można dodać obsługę wyjątków specyficznych dla dodawania (np. duplikat PESEL),
-        // wzorując się na ScheduleController
-        patientService.addPatient(patientRequest);
+        try {
+            patientService.addPatient(patientRequest);
+        } catch (PatientAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package pl.edu.agh.to.backendspringboot.application.patient;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException;
 import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse;
@@ -34,6 +35,11 @@ public class PatientService {
      * @param patientRequest Obiekt zawierający dane niezbędne do utworzenia pacjenta.
      */
     public void addPatient(PatientRequest patientRequest) {
+        // SPRAWDZENIE UNIKALNOŚCI:
+        if (patientRepository.existsByPesel(patientRequest.pesel())) {
+            throw new PatientAlreadyExistsException("Patient with PESEL " + patientRequest.pesel() + " already exists");
+        }
+
         patientRepository.save(PatientRequest.toEntity(patientRequest));
     }
 

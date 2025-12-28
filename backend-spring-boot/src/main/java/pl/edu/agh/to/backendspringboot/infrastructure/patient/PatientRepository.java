@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Integer> {
+    @Query("select case when count(p) > 0 then true else false end from Patient p where p.pesel = :pesel")
+    boolean existsByPesel(String pesel);
 
     @Query("select p.id as id, p.firstName as firstName, p.lastName as lastName from Patient p")
     List<PatientBrief> findPatientsBrief();
