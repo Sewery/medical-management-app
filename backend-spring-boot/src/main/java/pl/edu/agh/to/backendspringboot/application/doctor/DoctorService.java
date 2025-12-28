@@ -1,6 +1,8 @@
 package pl.edu.agh.to.backendspringboot.application.doctor;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorAssignedToScheduleException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
@@ -67,16 +69,26 @@ public class DoctorService {
     }
 
     /**
-     * Usuwa lekarza z systemu na podstawie jego identyfikatora.
-     * Przed usunięciem następuje weryfikacja, czy lekarz o danym ID istnieje.
+     * Usuwa lekarza z systemu.
+     * <p>
+     * Przed usunięciem sprawdza, czy lekarz nie ma przypisanych przyszłych lub przeszłych dyżurów.
      *
-     * @param id Unikalny identyfikator lekarza do usunięcia.
-     * @throws DoctorNotFoundException jeśli lekarz o podanym identyfikatorze nie istnieje.
+     * @param id ID lekarza.
+     * @throws DoctorNotFoundException           jeśli lekarz nie istnieje.
+     * @throws DoctorAssignedToScheduleException jeśli lekarz ma przypisane dyżury (nie można usunąć).
      */
+    @Transactional
     public void deleteDoctorById(Integer id) {
         if (!doctorRepository.existsById(id)) {
             throw new DoctorNotFoundException("Doctor with id " + id + " not found");
         }
+
+        if (scheduleRepository.existsByDoctorId(id)) {
+            throw new DoctorAssignedToScheduleException(
+                    "Cannot delete doctor with id " + id + " because they have assigned schedules."
+            );
+        }
+
         doctorRepository.deleteById(id);
     }
 }

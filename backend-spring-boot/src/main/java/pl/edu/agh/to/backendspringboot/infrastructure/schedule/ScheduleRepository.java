@@ -62,4 +62,18 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
 
     @Query("SELECT s FROM Schedule s WHERE s.doctor.id = :doctorId")
     List<ScheduleBrief> findAllByDoctorId(@Param("doctorId") Integer doctorId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+        FROM Schedule s
+        WHERE s.doctor.id = :doctorId
+    """)
+    boolean existsByDoctorId(@Param("doctorId") Integer doctorId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+        FROM Schedule s
+        WHERE s.consultingRoom.id = :consultingRoomId
+    """)
+    boolean existsByConsultingRoomId(@Param("consultingRoomId") Integer consultingRoomId);
 }
