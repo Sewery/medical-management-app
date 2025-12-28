@@ -1,6 +1,5 @@
 package pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
 
 public record ConsultingRoomBriefResponse(
@@ -21,18 +20,6 @@ public record ConsultingRoomBriefResponse(
                 consultingRoomBrief.getMedicalFacilities().isHasScale(),
                 consultingRoomBrief.getMedicalFacilities().isHasThermometer(),
                 consultingRoomBrief.getMedicalFacilities().isHasDiagnosticSet()
-        );
-    }
-
-    public static ConsultingRoomBriefResponse from(ConsultingRoom consultingRoom) {
-        return new ConsultingRoomBriefResponse(
-                consultingRoom.getId(),
-                consultingRoom.getRoomNumber(),
-                consultingRoom.getMedicalFacilities().isHasExaminationBed(),
-                consultingRoom.getMedicalFacilities().isHasECGMachine(),
-                consultingRoom.getMedicalFacilities().isHasScale(),
-                consultingRoom.getMedicalFacilities().isHasThermometer(),
-                consultingRoom.getMedicalFacilities().isHasDiagnosticSet()
         );
     }
 }

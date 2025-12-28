@@ -62,7 +62,7 @@ public class PatientService {
      * @throws PatientNotFoundException jeśli pacjent o podanym identyfikatorze nie zostanie znaleziony.
      */
     public PatientDetailResponse getPatientInfoById(Integer id) {
-        return patientRepository.findById(id)
+        return patientRepository.findPatientInfoById(id)
                 .map(PatientDetailResponse::from)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with id " + id + " not found"));
     }

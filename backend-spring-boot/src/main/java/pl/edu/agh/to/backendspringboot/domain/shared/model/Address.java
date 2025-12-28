@@ -5,11 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 
 @Embeddable
 public class Address {
-    @NotBlank
     private String street;
-    @NotBlank
+
     private String city;
-    @NotBlank
+
     private String postalCode;
 
     public Address() {

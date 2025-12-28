@@ -1,6 +1,5 @@
 package pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities;
