@@ -1,11 +1,10 @@
-package pl.edu.agh.to.backendspringboot.doctor;
+package pl.edu.agh.to.backendspringboot.application.doctor;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.edu.agh.to.backendspringboot.application.doctor.DoctorService;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
@@ -36,7 +35,6 @@ class DoctorServiceTest {
     @Test
     void shouldAddDoctorSuccessfully() {
         // given
-        Address address = new Address("Oak St", "Boston", "32-344");
         DoctorRequest doctorRequest = new DoctorRequest(
                 "Jane",
                 "Smith",
@@ -75,7 +73,7 @@ class DoctorServiceTest {
     }
 
     @Test
-    void shouldGetDoctorInfoByIdWhenExists() {
+    void shouldReturnDoctorDetailByIdWhenExists() {
         // given
         Integer doctorId = 1;
         DoctorDetail doctorDetail = mock(DoctorDetail.class);
@@ -94,7 +92,7 @@ class DoctorServiceTest {
     }
 
     @Test
-    void shouldThrowDoctorNotFoundExceptionWhenDoctorDoesNotExist() {
+    void shouldThrowExceptionWhenDoctorDoesNotExist() {
         // given
         Integer doctorId = 999;
         when(doctorRepository.findDoctorInfoById(doctorId)).thenReturn(Optional.empty());
@@ -120,7 +118,7 @@ class DoctorServiceTest {
     }
 
     @Test
-    void shouldThrowDoctorNotFoundExceptionWhenDeletingNonExistentDoctor() {
+    void shouldThrowWhenDeletingNonExistentDoctor() {
         // given
         Integer doctorId = 999;
         when(doctorRepository.existsById(doctorId)).thenReturn(false);
