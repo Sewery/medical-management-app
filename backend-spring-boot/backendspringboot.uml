@@ -1,43 +1,436 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>JAVA</ID>
-  <OriginalElement>C:/Users/wojpa/OneDrive/stu/TO/DK_WT_09-45_TWL/backend-spring-boot/src/main/java/pl/edu/agh/to/backendspringboot</OriginalElement>
+  <OriginalElement>C:/Users/sewix/Desktop/agh-offline/sem5/DK_WT_09-45_TWL/backend-spring-boot/src/main/java/pl/edu/agh/to/backendspringboot</OriginalElement>
   <nodes>
-    <node x="546.5" y="766.5">pl.edu.agh.to.backendspringboot.DatabaseInitializer</node>
-    <node x="440.0" y="1490.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse</node>
-    <node x="532.5" y="146.0">pl.edu.agh.to.backendspringboot.BackendSpringBootApplication</node>
-    <node x="363.5" y="298.5">pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization</node>
-    <node x="337.5" y="982.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest</node>
-    <node x="31.5" y="1278.0">pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse</node>
-    <node x="362.0" y="606.5">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo</node>
-    <node x="-162.5283125707814" y="169.5">pl.edu.agh.to.backendspringboot.DatabaseClean</node>
-    <node x="-365.8680634201585" y="1848.4190260475652">pl.edu.agh.to.backendspringboot.GlobalExceptionHandler</node>
-    <node x="198.5" y="790.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.Address</node>
-    <node x="556.5" y="398.5">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief</node>
-    <node x="46.0" y="298.5">pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException</node>
-    <node x="59.5" y="446.5">pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository</node>
-    <node x="357.0" y="1829.5">pl.edu.agh.to.backendspringboot.presentation.doctor.DoctorController</node>
-    <node x="-130.0" y="994.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor</node>
-    <node x="-135.0" y="569.5">pl.edu.agh.to.backendspringboot.application.doctor.DoctorService</node>
-    <node x="-141.0" y="1562.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization</node>
+    <node x="37.0" y="646.0">pl.edu.agh.to.backendspringboot.DatabaseInitializer</node>
+    <node x="1908.5" y="1506.0">pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse</node>
+    <node x="1760.5" y="1286.0">pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository</node>
+    <node x="588.5" y="1226.0">pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse</node>
+    <node x="1781.5" y="1686.0">pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse</node>
+    <node x="1679.0" y="1746.0">pl.edu.agh.to.backendspringboot.domain.patient.model.PatientDetail</node>
+    <node x="700.0" y="1686.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail</node>
+    <node x="-128.0" y="906.0">pl.edu.agh.to.backendspringboot.application.patient.PatientService</node>
+    <node x="513.0" y="646.0">pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomRequest</node>
+    <node x="1724.5" y="1566.0">pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomDetailResponse</node>
+    <node x="-180.0" y="786.0">pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository</node>
+    <node x="1443.5" y="1286.0">pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository</node>
+    <node x="1870.5" y="1226.0">pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ConsultingRoomScheduleResponse</node>
+    <node x="711.0" y="1286.0">pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod</node>
+    <node x="91.0" y="786.0">pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException</node>
+    <node x="1449.5" y="1686.0">pl.edu.agh.to.backendspringboot.BackendSpringBootApplication</node>
+    <node x="1326.5" y="1746.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief</node>
+    <node x="1630.5" y="1226.0">pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository</node>
+    <node x="349.0" y="1286.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException</node>
+    <node x="442.0" y="166.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor</node>
+    <node x="273.5" y="1746.0">pl.edu.agh.to.backendspringboot.presentation.schedule.ScheduleController</node>
+    <node x="1087.5" y="1746.0">pl.edu.agh.to.backendspringboot.DatabaseClean</node>
+    <node x="164.0" y="346.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities</node>
+    <node x="-210.0" y="346.0">pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest</node>
+    <node x="953.5" y="1686.0">pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleResponse</node>
+    <node x="-160.0" y="166.0">pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization</node>
+    <node x="-37.5" y="1026.0">pl.edu.agh.to.backendspringboot.presentation.patient.PatientController</node>
+    <node x="1927.5" y="1746.0">pl.edu.agh.to.backendspringboot.presentation.schedule.dto.DoctorScheduleResponse</node>
+    <node x="1473.0" y="1566.0">pl.edu.agh.to.backendspringboot.application.doctor.DoctorService</node>
+    <node x="793.5" y="1746.0">pl.edu.agh.to.backendspringboot.GlobalExceptionHandler</node>
+    <node x="521.0" y="1746.0">pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse</node>
+    <node x="-54.5" y="726.0">pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException</node>
+    <node x="414.0" y="1686.0">pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief</node>
+    <node x="1203.5" y="1686.0">pl.edu.agh.to.backendspringboot.presentation.doctor.DoctorController</node>
+    <node x="289.5" y="286.0">pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientRequest</node>
+    <node x="585.5" y="1106.0">pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse</node>
+    <node x="465.0" y="-14.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization</node>
+    <node x="-24.0" y="1566.0">pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService</node>
+    <node x="1202.0" y="1226.0">pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorAssignedToScheduleException</node>
+    <node x="964.0" y="1506.0">pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief</node>
+    <node x="65.0" y="1226.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomAssignedToScheduleException</node>
+    <node x="1623.0" y="1506.0">pl.edu.agh.to.backendspringboot.domain.patient.model.PatientBrief</node>
+    <node x="-176.5" y="1286.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNumberAlreadyExistsException</node>
+    <node x="81.0" y="106.0">pl.edu.agh.to.backendspringboot.domain.patient.model.Patient</node>
+    <node x="125.0" y="1686.0">pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse</node>
+    <node x="424.5" y="506.0">pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom</node>
+    <node x="1046.0" y="1286.0">pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException</node>
+    <node x="660.0" y="506.0">pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest</node>
+    <node x="-174.0" y="1746.0">pl.edu.agh.to.backendspringboot.presentation.consulting_room.ConsultingRoomController</node>
+    <node x="55.0" y="-14.0">pl.edu.agh.to.backendspringboot.domain.shared.model.Address</node>
+    <node x="801.0" y="1566.0">pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService</node>
+    <node x="882.5" y="1226.0">pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod</node>
+    <node x="492.0" y="346.0">pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule</node>
   </nodes>
   <notes />
   <edges>
-    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorInfo" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief" relationship="INTERFACE_GENERALIZATION">
-      <point x="0.0" y="-43.5" />
-      <point x="439.0" y="430.0" />
-      <point x="691.0" y="430.0" />
-      <point x="0.0" y="67.5" />
+    <edge source="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="513.0" y="480.0" />
+      <point x="473.0" y="480.0" />
+      <point x="473.0" y="440.0" />
+      <point x="297.5" y="440.0" />
+      <point x="44.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException" relationship="CREATE">
+      <point x="-58.5" y="-14.0" />
+      <point x="34.5" y="1540.0" />
+      <point x="33.0" y="1540.0" />
+      <point x="33.0" y="1440.0" />
+      <point x="513.0" y="1440.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom" target="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" relationship="TO_MANY">
+      <point x="0.0" y="-14.0" />
+      <point x="513.0" y="480.0" />
+      <point x="473.0" y="480.0" />
+      <point x="473.0" y="320.0" />
+      <point x="553.0" y="320.0" />
+      <point x="0.0" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository" relationship="TO_ONE">
+      <point x="46.0" y="-14.0" />
+      <point x="939.0" y="1460.0" />
+      <point x="1613.0" y="1460.0" />
+      <point x="1613.0" y="1340.0" />
+      <point x="1733.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest" target="pl.edu.agh.to.backendspringboot.domain.shared.model.Address" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="-127.0" y="220.0" />
+      <point x="-187.0" y="220.0" />
+      <point x="-187.0" y="40.0" />
+      <point x="84.0" y="40.0" />
+      <point x="-29.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomRequest" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="633.0" y="620.0" />
+      <point x="513.0" y="620.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.doctor.DoctorService" target="pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository" relationship="TO_ONE">
+      <point x="40.0" y="-14.0" />
+      <point x="1593.0" y="1480.0" />
+      <point x="1653.0" y="1480.0" />
+      <point x="1653.0" y="1360.0" />
+      <point x="1853.0" y="1360.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest" target="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="753.0" y="460.0" />
+      <point x="553.0" y="460.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.patient.PatientController" target="pl.edu.agh.to.backendspringboot.application.patient.PatientService" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="53.0" y="880.0" />
+      <point x="-87.5" y="880.0" />
+      <point x="-40.5" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="540.0" />
+      <point x="393.0" y="540.0" />
+      <point x="393.0" y="460.0" />
+      <point x="553.0" y="460.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomDetailResponse" target="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ConsultingRoomScheduleResponse" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="1873.0" y="1480.0" />
+      <point x="2033.0" y="1480.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse" target="pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse" relationship="TO_MANY">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="553.0" y="260.0" />
+      <point x="518.5" y="260.0" />
+      <point x="25.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ConsultingRoomScheduleResponse" target="pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="2033.0" y="1200.0" />
+      <point x="693.0" y="1200.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" target="pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository" relationship="TO_ONE">
+      <point x="58.5" y="-14.0" />
+      <point x="151.5" y="1480.0" />
+      <point x="1573.0" y="1480.0" />
+      <point x="1573.0" y="1400.0" />
+      <point x="1613.0" y="1400.0" />
+      <point x="1613.0" y="1340.0" />
+      <point x="1733.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.doctor.DoctorController" target="pl.edu.agh.to.backendspringboot.application.doctor.DoctorService" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="1293.0" y="1520.0" />
+      <point x="1593.0" y="1520.0" />
+      <point x="40.0" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.doctor.DoctorService" target="pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository" relationship="TO_ONE">
+      <point x="40.0" y="-14.0" />
+      <point x="1593.0" y="1480.0" />
+      <point x="1653.0" y="1480.0" />
+      <point x="1653.0" y="1380.0" />
+      <point x="1613.0" y="1380.0" />
+      <point x="1613.0" y="1340.0" />
+      <point x="1733.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.patient.model.Patient" target="pl.edu.agh.to.backendspringboot.domain.shared.model.Address" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="40.0" />
+      <point x="142.0" y="40.0" />
+      <point x="29.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.doctor.DoctorService" target="pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorAssignedToScheduleException" relationship="CREATE">
+      <point x="-40.0" y="-14.0" />
+      <point x="1513.0" y="1540.0" />
+      <point x="1373.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="540.0" />
+      <point x="93.0" y="540.0" />
+      <point x="93.0" y="220.0" />
+      <point x="467.5" y="220.0" />
+      <point x="-25.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.patient.PatientService" target="pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository" relationship="TO_ONE">
+      <point x="-40.5" y="-14.0" />
+      <point x="-87.5" y="860.0" />
+      <point x="-87.0" y="860.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="600.0" />
+      <point x="513.0" y="600.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod" relationship="CREATE">
+      <point x="-46.0" y="-14.0" />
+      <point x="847.0" y="1540.0" />
+      <point x="853.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="540.0" />
+      <point x="213.0" y="540.0" />
+      <point x="213.0" y="400.0" />
+      <point x="208.5" y="400.0" />
+      <point x="-44.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException" relationship="CREATE">
+      <point x="-46.0" y="-14.0" />
+      <point x="847.0" y="1540.0" />
+      <point x="853.0" y="1540.0" />
+      <point x="853.0" y="1360.0" />
+      <point x="1173.0" y="1360.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.DoctorScheduleResponse" target="pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository" relationship="TO_ONE">
+      <point x="46.0" y="-14.0" />
+      <point x="939.0" y="1460.0" />
+      <point x="1613.0" y="1460.0" />
+      <point x="1613.0" y="1420.0" />
+      <point x="1573.0" y="1420.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization" relationship="TO_ONE">
+      <point x="25.5" y="14.0" />
+      <point x="518.5" y="220.0" />
+      <point x="573.0" y="220.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.shared.model.Address" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="133.0" y="540.0" />
+      <point x="-227.0" y="540.0" />
+      <point x="-227.0" y="80.0" />
+      <point x="-187.0" y="80.0" />
+      <point x="-187.0" y="40.0" />
+      <point x="84.0" y="40.0" />
+      <point x="-29.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="553.0" y="300.0" />
+      <point x="633.0" y="300.0" />
+      <point x="633.0" y="400.0" />
+      <point x="513.0" y="400.0" />
+      <point x="0.0" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.consulting_room.ConsultingRoomController" target="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="-47.0" y="1520.0" />
+      <point x="151.5" y="1520.0" />
+      <point x="58.5" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientRequest" target="pl.edu.agh.to.backendspringboot.domain.patient.model.Patient" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="373.0" y="260.0" />
+      <point x="133.0" y="260.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.patient.model.PatientDetail" target="pl.edu.agh.to.backendspringboot.domain.patient.model.PatientBrief" relationship="INTERFACE_GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1753.0" y="1660.0" />
+      <point x="1693.0" y="1660.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException" relationship="CREATE">
+      <point x="-46.0" y="-14.0" />
+      <point x="847.0" y="1540.0" />
+      <point x="853.0" y="1540.0" />
+      <point x="853.0" y="1460.0" />
+      <point x="513.0" y="1460.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest" target="pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="-127.0" y="220.0" />
+      <point x="-27.0" y="220.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomRequest" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="633.0" y="420.0" />
+      <point x="213.0" y="420.0" />
+      <point x="213.0" y="400.0" />
+      <point x="208.5" y="400.0" />
+      <point x="-44.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.patient.PatientService" target="pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException" relationship="CREATE">
+      <point x="40.5" y="-14.0" />
+      <point x="-6.5" y="860.0" />
+      <point x="73.0" y="860.0" />
+      <point x="73.0" y="840.0" />
+      <point x="233.0" y="840.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNumberAlreadyExistsException" relationship="CREATE">
+      <point x="-58.5" y="-14.0" />
+      <point x="34.5" y="1540.0" />
+      <point x="33.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" target="pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule" relationship="TO_MANY">
+      <point x="25.5" y="14.0" />
+      <point x="518.5" y="240.0" />
+      <point x="553.0" y="240.0" />
+      <point x="0.0" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.patient.PatientService" target="pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException" relationship="CREATE">
+      <point x="40.5" y="-14.0" />
+      <point x="-6.5" y="860.0" />
+      <point x="73.0" y="860.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.doctor.DoctorService" target="pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException" relationship="CREATE">
+      <point x="-40.0" y="-14.0" />
+      <point x="1513.0" y="1540.0" />
+      <point x="1373.0" y="1540.0" />
+      <point x="1373.0" y="1440.0" />
+      <point x="1173.0" y="1440.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.schedule.ScheduleController" target="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="373.0" y="1520.0" />
+      <point x="939.0" y="1520.0" />
+      <point x="46.0" y="-14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.DatabaseInitializer" target="pl.edu.agh.to.backendspringboot.domain.patient.model.Patient" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" target="pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomAssignedToScheduleException" relationship="CREATE">
+      <point x="-58.5" y="-14.0" />
+      <point x="34.5" y="1540.0" />
+      <point x="33.0" y="1540.0" />
+      <point x="33.0" y="1340.0" />
+      <point x="273.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief" relationship="INTERFACE_GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="773.0" y="1660.0" />
+      <point x="1033.0" y="1660.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" target="pl.edu.agh.to.backendspringboot.domain.shared.model.Address" relationship="TO_ONE">
+      <point x="25.5" y="14.0" />
+      <point x="518.5" y="220.0" />
+      <point x="573.0" y="220.0" />
+      <point x="573.0" y="60.0" />
+      <point x="133.0" y="60.0" />
+      <point x="133.0" y="40.0" />
+      <point x="142.0" y="40.0" />
+      <point x="29.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository" relationship="TO_ONE">
+      <point x="46.0" y="-14.0" />
+      <point x="939.0" y="1460.0" />
+      <point x="1613.0" y="1460.0" />
+      <point x="1613.0" y="1440.0" />
+      <point x="1653.0" y="1440.0" />
+      <point x="1653.0" y="1360.0" />
+      <point x="1853.0" y="1360.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse" relationship="CREATE">
+      <point x="-46.0" y="-14.0" />
+      <point x="847.0" y="1540.0" />
+      <point x="853.0" y="1540.0" />
+      <point x="853.0" y="1340.0" />
+      <point x="693.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest" target="pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="-127.0" y="320.0" />
+      <point x="93.0" y="320.0" />
+      <point x="93.0" y="220.0" />
+      <point x="467.5" y="220.0" />
+      <point x="-25.5" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientRequest" target="pl.edu.agh.to.backendspringboot.domain.shared.model.Address" relationship="CREATE">
+      <point x="0.0" y="-14.0" />
+      <point x="373.0" y="80.0" />
+      <point x="-187.0" y="80.0" />
+      <point x="-187.0" y="40.0" />
+      <point x="84.0" y="40.0" />
+      <point x="-29.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.consulting_room.ConsultingRoomService" target="pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository" relationship="TO_ONE">
+      <point x="58.5" y="-14.0" />
+      <point x="151.5" y="1480.0" />
+      <point x="1573.0" y="1480.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="pl.edu.agh.to.backendspringboot.application.schedule.ScheduleService" target="pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod" relationship="CREATE">
+      <point x="-46.0" y="-14.0" />
+      <point x="847.0" y="1540.0" />
+      <point x="853.0" y="1540.0" />
+      <point x="853.0" y="1340.0" />
+      <point x="1013.0" y="1340.0" />
+      <point x="0.0" y="14.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Compact" zoom="0.41108007448789574" showDependencies="false" x="355.9999999999998" y="1052.163080407701" />
+  <settings layout="Hierarchic Compact" zoom="0.3154867256637168" showDependencies="true" x="1136.6913604488082" y="974.7173520336605" />
   <SelectedNodes />
-  <Categories>
-    <Category>Constructors</Category>
-    <Category>Inner Classes</Category>
-    <Category>Methods</Category>
-    <Category>Properties</Category>
-  </Categories>
+  <Categories />
   <SCOPE>All</SCOPE>
   <VISIBILITY>private</VISIBILITY>
 </Diagram>

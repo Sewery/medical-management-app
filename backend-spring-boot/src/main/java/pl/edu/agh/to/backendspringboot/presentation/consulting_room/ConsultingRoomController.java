@@ -25,9 +25,9 @@ import java.util.List;
 public class ConsultingRoomController {
     private final ConsultingRoomService consultingRoomService;
     /**
-     * Konstruktor kontrolera wstrzykujący zależność serwisu gabientów lekarskich.
+     * Konstruktor kontrolera wstrzykujący zależność serwisu gabinetów lekarskich.
      *
-     * @param consultingRoomService Serwis zawierający logikę biznesową dotyczącą gabientów lekarskich.
+     * @param consultingRoomService Serwis zawierający logikę biznesową dotyczącą gabinetów lekarskich.
      */
     public ConsultingRoomController(ConsultingRoomService consultingRoomService){
         this.consultingRoomService = consultingRoomService;
@@ -60,13 +60,13 @@ public class ConsultingRoomController {
     }
 
     /**
-     * Pobiera listę wszystkich gabientów lekarskich dostępnych w systemie.
+     * Pobiera listę wszystkich gabinetów lekarskich dostępnych w systemie.
      * Zwraca dane w formie skróconej (Brief).
      *
-     * @return Lista obiektów {@link ConsultingRoomBriefResponse} reprezentujących gabienty.
+     * @return Lista obiektów {@link ConsultingRoomBriefResponse} reprezentujących gabinety.
      */
-    @Operation(summary = "Pobierz listę lekarzy", description = "Zwraca listę wszystkich gabientów lekarskich w systemie w formacie skróconym.")
-    @ApiResponse(responseCode = "200", description = "Lista gabientów lekarskich została pobrana")
+    @Operation(summary = "Pobierz listę gabinetów lekarskich", description = "Zwraca listę wszystkich gabinetów lekarskich w systemie w formacie skróconym.")
+    @ApiResponse(responseCode = "200", description = "Lista gabinetów lekarskich została pobrana")
     @GetMapping
     public List<ConsultingRoomBriefResponse> getConsultingRooms(){
         return consultingRoomService.getConsultingRooms();
