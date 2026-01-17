@@ -59,7 +59,7 @@ class ScheduleRepositoryTest {
 
         entityManager.flush();
 
-        // when - pytamy o przedział 11:00 - 13:00 (kolizja z busyDoctor)
+        // when
         List<DoctorBrief> result = scheduleRepository.findAvailableDoctorsInPeriod(
                 LocalTime.of(11, 0), LocalTime.of(13, 0)
         );
@@ -91,7 +91,7 @@ class ScheduleRepositoryTest {
 
         entityManager.flush();
 
-        // when - przedział 08:30 - 09:30 (kolizja z busyRoom)
+        // when
         List<ConsultingRoomBrief> result = scheduleRepository.findAvailableConsultingRoomsInPeriod(
                 LocalTime.of(8, 30), LocalTime.of(9, 30)
         );
@@ -117,17 +117,15 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true, false, false, false, false));
         entityManager.persist(room);
 
-        // Dyżur 12:00 - 14:00
         entityManager.persist(new Schedule(doctor, room, LocalTime.of(12, 0), LocalTime.of(14, 0)));
         entityManager.flush();
 
         // when & then
-        // Przypadek 1: Pełne zawieranie (12:30 - 13:30)
         boolean overlap1 = scheduleRepository.existsScheduleInPeriodForDoctor(
                 LocalTime.of(12, 30), LocalTime.of(13, 30), doctor.getId());
         assertThat(overlap1).isTrue();
 
-        // Przypadek 2: Częściowe nakładanie (13:00 - 15:00)
+
         boolean overlap2 = scheduleRepository.existsScheduleInPeriodForDoctor(
                 LocalTime.of(13, 0), LocalTime.of(15, 0), doctor.getId());
         assertThat(overlap2).isTrue();
@@ -186,5 +184,29 @@ class ScheduleRepositoryTest {
 
         // then
         assertThat(exists).isTrue();
+    }
+
+    @Test
+    void shouldCheckScheduleExistsForDoctorInPeriodInRoom() {
+        Doctor doc = new Doctor("Jan", "L", "1", new Address(), MedicalSpecialization.CARDIOLOGY);
+        ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true,false,false,false,false));
+        entityManager.persist(doc);
+        entityManager.persist(room);
+        entityManager.persist(new Schedule(doc, room, LocalTime.of(8,0), LocalTime.of(12,0)));
+        entityManager.flush();
+        boolean result = scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(doc.getId(), room.getId(), LocalTime.of(9,0), LocalTime.of(9,30));
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnTrueWhenScheduleExistsByDoctorId() {
+        Doctor doc = new Doctor("Jan", "L", "1", new Address(), MedicalSpecialization.CARDIOLOGY);
+        ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true,false,false,false,false));
+        entityManager.persist(doc);
+        entityManager.persist(room);
+        entityManager.persist(new Schedule(doc, room, LocalTime.of(8,0), LocalTime.of(12,0)));
+        entityManager.flush();
+
+        assertThat(scheduleRepository.existsByDoctorId(doc.getId())).isTrue();
     }
 }

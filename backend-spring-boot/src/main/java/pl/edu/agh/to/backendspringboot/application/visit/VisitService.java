@@ -52,7 +52,7 @@ public class VisitService {
     public Observable<AvailabilityResponse> getPossibleVisits(MedicalSpecialization specialization) {
         int duration= specialization.getVisitTime();
         return Observable.fromIterable(
-                doctorRepository.findAllBySpecialization(specialization.name())
+                doctorRepository.findAllBySpecialization(specialization)
         ).subscribeOn(io.reactivex.rxjava3.schedulers.Schedulers.io())
         .map(doctor -> scheduleRepository.findAllByDoctorIdDetail(doctor.getId()))
                 .flatMapIterable(schedules -> schedules)
@@ -85,16 +85,45 @@ public class VisitService {
         visitRepository.deleteById(id);
     }
 
+    public void addVisit(@Valid VisitRequest visitDataRequest) {
+        if(!doctorRepository.existsById(visitDataRequest.doctorId())){
+            throw new DoctorNotFoundException("Doctor with id " + visitDataRequest.doctorId() + " not found.");
+        }
+        if(!patientRepository.existsById(visitDataRequest.patientId())){
+            throw new PatientNotFoundException("Patient with id " + visitDataRequest.patientId() + " not found.");
+        }
+        if(!consultingRoomRepository.existsById(visitDataRequest.consultingRoomId())){
+            throw new ConsultingRoomNotFoundException("Consulting room with id " + visitDataRequest.consultingRoomId() + " not found.");
+        }
+        if(visitRepository.visitAlreadyExistsForDoctor(visitDataRequest.doctorId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
+            throw new VisitAlreadyExistsException("Colliding visit exists for doctor with id " + visitDataRequest.doctorId() + " in the given time range.");
+        }
+        if(visitRepository.visitAlreadyExistsForConsultingRoom(visitDataRequest.consultingRoomId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
+            throw new VisitAlreadyExistsException("Colliding visit exists for consulting room with id " + visitDataRequest.consultingRoomId() + " in the given time range.");
+        }
+        if(visitRepository.visitAlreadyExistsForPatient(visitDataRequest.patientId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
+            throw new VisitAlreadyExistsException("Colliding visit exists for patient with id " + visitDataRequest.patientId() + " in the given time range.");
+        }
+        if(!scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(visitDataRequest.doctorId(),visitDataRequest.consultingRoomId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
+            throw new VisitNotInScheduleException("No schedule for doctor with id " + visitDataRequest.doctorId() + " in the given time range.");
+        }
+
+        Doctor doctor = doctorRepository.findById(visitDataRequest.doctorId()).get();
+        ConsultingRoom consultingRoom = consultingRoomRepository.findById(visitDataRequest.consultingRoomId()).get();
+        Patient patient = patientRepository.findById(visitDataRequest.patientId()).get();
+        visitRepository.save(visitDataRequest.toEntity(doctor, patient, consultingRoom));
+    }
+
 
     private List<AvailabilityResponse> getAllPossibleVisitsForSchedule(ScheduleDetail schedule, int duration){
         List<AvailabilityResponse> possibleVisits = new ArrayList<AvailabilityResponse>();
         int start = schedule.getShiftStart().getHour()*60 + schedule.getShiftStart().getMinute();
         int end = schedule.getShiftEnd().getHour()*60 + schedule.getShiftEnd().getMinute();
-        for(int time = start; time + duration <= end; time += duration + 1 ){
+        for(int time = start; time + duration -1  <= end; time += duration + 1 ){
             int hour = time / 60;
             int minute = time % 60;
             LocalTime visitStart = LocalTime.of(hour, minute);
-            LocalTime visitEnd = visitStart.plusMinutes(duration);
+            LocalTime visitEnd = visitStart.plusMinutes(duration-1);
             possibleVisits.add(createAvailabilityResponse(schedule, visitStart, visitEnd));
         }
         return possibleVisits;
@@ -122,33 +151,4 @@ public class VisitService {
         );
     }
 
-
-    public void addVisit(@Valid VisitRequest visitDataRequest) {
-        if(!doctorRepository.existsById(visitDataRequest.doctorId())){
-            throw new DoctorNotFoundException("Doctor with id " + visitDataRequest.doctorId() + " not found.");
-        }
-        if(!patientRepository.existsById(visitDataRequest.patientId())){
-            throw new PatientNotFoundException("Patient with id " + visitDataRequest.patientId() + " not found.");
-        }
-        if(!consultingRoomRepository.existsById(visitDataRequest.consultingRoomId())){
-            throw new ConsultingRoomNotFoundException("Consulting room with id " + visitDataRequest.consultingRoomId() + " not found.");
-        }
-        if(!visitRepository.visitAlreadyExistsForDoctor(visitDataRequest.doctorId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
-            throw new VisitAlreadyExistsException("Colliding visit exists for doctor with id " + visitDataRequest.doctorId() + " in the given time range.");
-        }
-        if(!visitRepository.visitAlreadyExistsForConsultingRoom(visitDataRequest.consultingRoomId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
-            throw new VisitAlreadyExistsException("Colliding visit exists for consulting room with id " + visitDataRequest.consultingRoomId() + " in the given time range.");
-        }
-        if(!visitRepository.visitAlreadyExistsForPatient(visitDataRequest.patientId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
-            throw new VisitAlreadyExistsException("Colliding visit exists for patient with id " + visitDataRequest.patientId() + " in the given time range.");
-        }
-        if(scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(visitDataRequest.doctorId(),visitDataRequest.consultingRoomId(), visitDataRequest.visitStart(), visitDataRequest.visitEnd())){
-            throw new VisitNotInScheduleException("No schedule for doctor with id " + visitDataRequest.doctorId() + " in the given time range.");
-        }
-
-        Doctor doctor = doctorRepository.findById(visitDataRequest.doctorId()).get();
-        ConsultingRoom consultingRoom = consultingRoomRepository.findById(visitDataRequest.consultingRoomId()).get();
-        Patient patient = patientRepository.findById(visitDataRequest.patientId()).get();
-        visitRepository.save(visitDataRequest.toEntity(doctor, patient, consultingRoom));
-    }
 }

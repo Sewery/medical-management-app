@@ -58,4 +58,5 @@ public enum MedicalSpecialization {
     public int getVisitTime() {
         return visitTime;
     }
+
 }

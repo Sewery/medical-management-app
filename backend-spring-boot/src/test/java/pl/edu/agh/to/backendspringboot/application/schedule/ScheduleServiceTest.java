@@ -15,10 +15,12 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod;
+import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
 
@@ -41,6 +43,9 @@ class ScheduleServiceTest {
 
     @Mock
     private ConsultingRoomRepository consultingRoomRepository;
+
+    @Mock
+    private VisitRepository visitRepository;
 
     @InjectMocks
     private ScheduleService scheduleService;
@@ -202,4 +207,61 @@ class ScheduleServiceTest {
         assertThrows(ConflictInScheduleTimePeriod.class, () -> scheduleService.addSchedule(request));
         verify(scheduleRepository, never()).save(any());
     }
+
+    @Test
+    void shouldDeleteScheduleById() {
+        // given
+        int scheduleId = 1;
+        Schedule schedule = mock(Schedule.class);
+        Doctor doctor = mock(Doctor.class);
+
+        when(scheduleRepository.existsById(scheduleId)).thenReturn(true);
+        when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.of(schedule));
+        when(schedule.getDoctor()).thenReturn(doctor);
+        when(doctor.getId()).thenReturn(10);
+        when(schedule.getShiftStart()).thenReturn(LocalTime.of(8, 0));
+        when(schedule.getShiftEnd()).thenReturn(LocalTime.of(12, 0));
+
+        when(visitRepository.visitExistsForSchedule(10, LocalTime.of(8,0), LocalTime.of(12,0))).thenReturn(false);
+
+        // when
+        scheduleService.deleteScheduleById(scheduleId);
+
+        // then
+        verify(scheduleRepository).deleteById(scheduleId);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonExistentSchedule() {
+        // given
+        int scheduleId = 99;
+        when(scheduleRepository.existsById(scheduleId)).thenReturn(false);
+
+        // when & then
+        assertThrows(pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException.class,
+                () -> scheduleService.deleteScheduleById(scheduleId));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenVisitsExistForSchedule() {
+        // given
+        int scheduleId = 1;
+        Schedule schedule = mock(Schedule.class);
+        Doctor doctor = mock(Doctor.class);
+
+        when(scheduleRepository.existsById(scheduleId)).thenReturn(true);
+        when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.of(schedule));
+        when(schedule.getDoctor()).thenReturn(doctor);
+        when(doctor.getId()).thenReturn(10);
+        when(schedule.getShiftStart()).thenReturn(LocalTime.of(8, 0));
+        when(schedule.getShiftEnd()).thenReturn(LocalTime.of(12, 0));
+
+        when(visitRepository.visitExistsForSchedule(10, LocalTime.of(8,0), LocalTime.of(12,0))).thenReturn(true);
+
+        // when & then
+        assertThrows(VisitAssignedToScheduleException.class,
+                () -> scheduleService.deleteScheduleById(scheduleId));
+    }
+
+
 }

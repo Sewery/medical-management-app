@@ -85,7 +85,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
         FROM Schedule s
         WHERE s.shiftStart <= :startTime
-        AND s.shiftEnd >= :startEnd
+        AND s.shiftEnd >= :endTime
         AND s.doctor.id = :doctorId 
         AND s.consultingRoom.id = :consultingRoomId
     """)
