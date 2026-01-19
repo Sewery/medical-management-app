@@ -53,9 +53,12 @@ public class ScheduleController {
 
     /**
      * Pobiera listę dostępnych lekarzy i gabinetów w określonym przedziale czasowym (Data + Czas).
+     * <p>
+     * Metoda sprawdza dostępność zasobów w podanym oknie czasowym.
      *
      * @param startTime Data i czas rozpoczęcia szukanego okna (format ISO-8601, np. 2026-01-20T08:00:00).
      * @param endTime   Data i czas zakończenia szukanego okna (format ISO-8601, np. 2026-01-20T12:00:00).
+     * @return Obiekt zawierający listy wolnych lekarzy i gabinetów.
      */
     @Operation(
             summary = "Pobierz dostępnych lekarzy i gabinety",
@@ -93,6 +96,10 @@ public class ScheduleController {
 
     /**
      * Planuje nowy dyżur dla lekarza w konkretnym gabinecie na określony dzień i godzinę.
+     * <p>
+     * Metoda deleguje walidację reguł biznesowych do serwisu.
+     *
+     * @param scheduleRequest Obiekt DTO zawierający ID lekarza, ID gabinetu oraz ramy czasowe dyżuru (ISO-8601).
      */
     @Operation(
             summary = "Zaplanuj dyżur lekarza",
@@ -107,9 +114,9 @@ public class ScheduleController {
                                     value = """
                                             {
                                               "doctorId": 1,
-                                              "consultingRoomId": 10,
+                                              "consultingRoomId": 101,
                                               "startTime": "2026-01-20T08:00:00",
-                                              "endTime": "2026-01-20T12:00:00"
+                                              "endTime": "2026-01-20T16:00:00"
                                             }
                                             """
                             )
@@ -134,10 +141,13 @@ public class ScheduleController {
 
     /**
      * Usuwa istniejący dyżur z harmonogramu.
+     *
+     * @param id Unikalny identyfikator dyżuru do usunięcia.
      */
     @Operation(
             summary = "Usuń dyżur",
-            description = "Trwale usuwa dyżur z systemu na podstawie jego identyfikatora."
+            description = "Trwale usuwa dyżur z systemu na podstawie jego identyfikatora. " +
+                    "Operacja zostanie zablokowana, jeśli do tego dyżuru są już przypisane wizyty pacjentów."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dyżur został pomyślnie usunięty"),
