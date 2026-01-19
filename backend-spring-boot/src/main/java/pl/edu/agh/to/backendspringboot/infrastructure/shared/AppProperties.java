@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.infrastructure.configuration;
+package pl.edu.agh.to.backendspringboot.infrastructure.shared;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

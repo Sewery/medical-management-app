@@ -3,6 +3,8 @@ package pl.edu.agh.to.backendspringboot.presentation.schedule;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,7 +24,6 @@ import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedTo
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
-import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,24 +31,19 @@ import java.util.List;
 @RestController
 @RequestMapping("schedules")
 @CrossOrigin(origins = "http://localhost:3000")
-@Tag(name = "Schedule Controller", description = "API do zarządzania godzinami dyżurów lekarzy w gabinetach lekarskich")
+@Tag(name = "Schedule Controller", description = "API do zarządzania dyżurami lekarzy (Data i Czas)")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    /**
-     * Konstruktor kontrolera wstrzykujący zależność serwisu dyżurów lekarzy.
-     *
-     * @param scheduleService Serwis zawierający logikę biznesową dotyczącą dyżurów lekarskich.
-     */
-    public ScheduleController(ScheduleService scheduleService){
+    public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
 
     /**
      * Pobiera listę wszystkich dyżurów w formacie skróconym.
      *
-     * @return Lista obiektów {@link ScheduleResponse}.
+     * @return Lista obiektów {@link ScheduleDetailResponse}.
      */
     @Operation(summary = "Pobierz wszystkie dyżury", description = "Zwraca listę wszystkich dyżurów lekarzy (widok skrócony).")
     @GetMapping
@@ -56,77 +52,77 @@ public class ScheduleController {
     }
 
     /**
-     * Pobiera listę dostępnych lekarzy i gabinetów w określonym przedziale czasowym.
-     * <p>
-     * Metoda sprawdza dostępność zasobów dla dnia dzisiejszego na podstawie podanych godzin.
-     * Weryfikuje, czy w zadanym oknie czasowym lekarze i gabinety nie mają przypisanych innych dyżurów.
+     * Pobiera listę dostępnych lekarzy i gabinetów w określonym przedziale czasowym (Data + Czas).
      *
-     * @param startTime Godzina rozpoczęcia szukanego okna czasowego (format HH:mm).
-     * @param endTime   Godzina zakończenia szukanego okna czasowego (format HH:mm).
-     * @return Obiekt {@link AvailabilityResponse} zawierający listy wolnych lekarzy i gabinetów.
-     * @throws ResponseStatusException (HttpStatus.BAD_REQUEST) jeśli podany przedział czasu jest nieprawidłowy (np. start > end).
+     * @param startTime Data i czas rozpoczęcia szukanego okna (format ISO-8601, np. 2026-01-20T08:00:00).
+     * @param endTime   Data i czas zakończenia szukanego okna (format ISO-8601, np. 2026-01-20T12:00:00).
      */
     @Operation(
             summary = "Pobierz dostępnych lekarzy i gabinety",
-            description = "Zwraca listę lekarzy oraz gabinetów zabiegowych, które są wolne w podanym przedziale godzinowym.",
+            description = "Zwraca listę lekarzy oraz gabinetów zabiegowych, które są wolne w podanym przedziale daty i czasu.",
             parameters = {
                     @Parameter(
                             in = ParameterIn.QUERY,
                             name = "startTime",
-                            description = "Godzina rozpoczęcia (format HH:mm)",
+                            description = "Data i czas rozpoczęcia (ISO-8601)",
                             required = true,
-                            example = "08:00",
-                            schema = @Schema(
-                                    type = "string",
-                                    pattern = "^\\d{2}:\\d{2}$"
-                            )
+                            example = "2026-01-20T08:00:00",
+                            schema = @Schema(type = "string", format = "date-time")
                     ),
                     @Parameter(
                             in = ParameterIn.QUERY,
                             name = "endTime",
-                            description = "Godzina zakończenia (format HH:mm)",
+                            description = "Data i czas zakończenia (ISO-8601)",
                             required = true,
-                            example = "12:00",
-                            schema = @Schema(
-                                    type = "string",
-                                    pattern = "^\\d{2}:\\d{2}$"
-                            )
+                            example = "2026-01-20T12:00:00",
+                            schema = @Schema(type = "string", format = "date-time")
                     )
             }
     )
     @GetMapping("/availability")
     public AvailabilityResponse getAvailableDoctorsAndConsultingRooms(
-            @RequestParam("startTime") @DateTimeFormat(pattern ="HH:mm") LocalDateTime startTime,
-            @RequestParam("endTime") @DateTimeFormat(pattern ="HH:mm") LocalDateTime endTime){
+            @RequestParam("startTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam("endTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
+
         try {
             return scheduleService.getAvailableDoctorsAndConsultingRooms(startTime, endTime);
-        }catch(InvalidScheduleTimePeriod e) {
+        } catch (InvalidScheduleTimePeriod e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
 
     /**
-     * Planuje nowy dyżur dla lekarza w konkretnym gabinecie.
-     * <p>
-     * Metoda waliduje istnienie lekarza i gabinetu oraz poprawność logiczną ram czasowych.
-     * Dodatkowo sprawdza, czy w podanym terminie nie występuje konflikt (zajętość zasobu).
-     *
-     * @param scheduleRequest Obiekt DTO zawierający ID lekarza, ID gabinetu oraz ramy czasowe dyżuru.
-     * @throws ResponseStatusException (HttpStatus.BAD_REQUEST) w przypadku gdy lekarz lub gabinet nie istnieje, lub podano błędny czas.
-     * @throws ResponseStatusException (HttpStatus.CONFLICT) w przypadku gdy lekarz lub gabinet jest już zajęty w tym terminie.
+     * Planuje nowy dyżur dla lekarza w konkretnym gabinecie na określony dzień i godzinę.
      */
     @Operation(
             summary = "Zaplanuj dyżur lekarza",
-            description = "Tworzy nowy dyżur dla wybranego lekarza i gabinetu w określonych godzinach. " +
-                    "Godziny należy podawać w formacie HH:mm. System domyślnie przyjmuje, że dyżur dotyczy dnia dzisiejszego."
+            description = "Tworzy nowy dyżur dla wybranego lekarza i gabinetu w określonym dniu i godzinach (format ISO-8601).",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dane nowego dyżuru (pamiętaj o pełnym formacie daty!)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ScheduleRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Przykład poprawnego dyżuru",
+                                    value = """
+                                            {
+                                              "doctorId": 1,
+                                              "consultingRoomId": 10,
+                                              "startTime": "2026-01-20T08:00:00",
+                                              "endTime": "2026-01-20T12:00:00"
+                                            }
+                                            """
+                            )
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dyżur został pomyślnie utworzony"),
-            @ApiResponse(responseCode = "400", description = "Nieprawidłowe dane (np. błędny format czasu, brak ID)"),
+            @ApiResponse(responseCode = "400", description = "Nieprawidłowe dane (zły format daty, termin z przeszłości, zbyt odległy termin)"),
             @ApiResponse(responseCode = "409", description = "Konflikt - lekarz lub gabinet jest już zajęty w tym terminie")
     })
     @PostMapping
-    public void scheduleDuty(@Valid @RequestBody ScheduleRequest scheduleRequest){
+    public void scheduleDuty(@Valid @RequestBody ScheduleRequest scheduleRequest) {
         try {
             scheduleService.addSchedule(scheduleRequest);
         } catch (DoctorNotFoundException | ConsultingRoomNotFoundException | InvalidScheduleTimePeriod e) {
@@ -138,18 +134,10 @@ public class ScheduleController {
 
     /**
      * Usuwa istniejący dyżur z harmonogramu.
-     * <p>
-     * Usunięcie jest możliwe tylko w przypadku, gdy do danego dyżuru nie zostały jeszcze 
-     * przypisane żadne konkretne wizyty pacjentów.
-     *
-     * @param id Unikalny identyfikator dyżuru do usunięcia.
-     * @throws ResponseStatusException (HttpStatus.NOT_FOUND) jeśli dyżur o podanym ID nie istnieje.
-     * @throws ResponseStatusException (HttpStatus.CONFLICT) jeśli do dyżuru są przypisane wizyty.
      */
     @Operation(
             summary = "Usuń dyżur",
-            description = "Trwale usuwa dyżur z systemu na podstawie jego identyfikatora. " +
-                    "Operacja zostanie zablokowana, jeśli do tego dyżuru są już przypisane wizyty pacjentów."
+            description = "Trwale usuwa dyżur z systemu na podstawie jego identyfikatora."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dyżur został pomyślnie usunięty"),
@@ -160,7 +148,7 @@ public class ScheduleController {
     public void deleteScheduleById(@PathVariable int id) {
         try {
             scheduleService.deleteScheduleById(id);
-        } catch(ScheduleNotFoundException e) {
+        } catch (ScheduleNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (VisitAssignedToScheduleException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());

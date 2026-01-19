@@ -3,7 +3,8 @@ package pl.edu.agh.to.backendspringboot.application.shared;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import pl.edu.agh.to.backendspringboot.infrastructure.configuration.AppProperties;
+import pl.edu.agh.to.backendspringboot.domain.shared.exception.DateExceedsMaxRangeLimitException; // <--- Import
+import pl.edu.agh.to.backendspringboot.infrastructure.shared.AppProperties;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -28,8 +29,7 @@ public class DateValidator {
         }
 
         if (startTime.isAfter(now.plusDays(maxDays))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    String.format("Cannot schedule more than %d days in advance.", maxDays));
+            throw new DateExceedsMaxRangeLimitException(maxDays);
         }
     }
 

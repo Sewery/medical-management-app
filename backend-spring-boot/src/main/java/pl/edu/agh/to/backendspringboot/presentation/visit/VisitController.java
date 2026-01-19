@@ -4,6 +4,8 @@ import io.reactivex.rxjava3.core.Observable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -37,6 +39,7 @@ public class VisitController {
 
     /**
      * Konstruktor kontrolera wstrzykujący zależność serwisu wizyt.
+     * Walidacja daty odbywa się wewnątrz serwisu.
      *
      * @param visitService Serwis realizujący logikę biznesową wizyt.
      */
@@ -48,14 +51,14 @@ public class VisitController {
      * Wyszukuje dostępne terminy wizyt dla podanej specjalizacji lekarskiej.
      * <p>
      * Metoda wykorzystuje programowanie reaktywne (RxJava) do asynchronicznego pobrania
-     * i przetworzenia dostępnych slotów czasowych u wszystkich lekarzy danej specjalizacji.
+     * i przetworzenia dostępnych slotów czasowych (data i czas) u wszystkich lekarzy danej specjalizacji.
      *
      * @param specialization Nazwa specjalizacji (zgodna z enum MedicalSpecialization, np. "CARDIOLOGY","kardiolog").
      * @return Strumień (Observable) zawierający listę dostępnych terminów.
      */
     @Operation(
             summary = "Sprawdź dostępność wizyt",
-            description = "Zwraca listę wolnych terminów wizyt dla lekarzy o wskazanej specjalizacji.",
+            description = "Zwraca listę wolnych terminów wizyt (Data i Czas) dla lekarzy o wskazanej specjalizacji.",
             parameters = @Parameter(
                     name = "specialization",
                     description = "Specjalizacja lekarska w języku polskim lub angielskim, ignorowana wielkość liter",
@@ -66,8 +69,6 @@ public class VisitController {
     )
     @GetMapping("/availability")
     public Observable<List<AvailabilityResponse>> getAvailability(@RequestParam String specialization) {
-        // Uwaga: dodałem @RequestParam, aby Swagger poprawnie interpretował parametr, 
-        // choć Spring domyślnie mapuje argumenty proste jako parametry zapytania.
         MedicalSpecialization medicalSpecialization = MedicalSpecialization.getEnum(specialization);
         return visitService.getPossibleVisits(medicalSpecialization).toList().toObservable();
     }
@@ -92,7 +93,7 @@ public class VisitController {
     @Operation(summary = "Pobierz szczegóły wizyty", description = "Zwraca pełne dane wizyty na podstawie jej ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Znaleziono wizytę"),
-            @ApiResponse(responseCode = "404", description = "Wizyta o podanym ID nie istnieje") // Zakładamy, że serwis rzuci wyjątek, jeśli nie znajdzie
+            @ApiResponse(responseCode = "404", description = "Wizyta o podanym ID nie istnieje")
     })
     @GetMapping("/{id}")
     public VisitDetailResponse getVisitById(@PathVariable int id) {
@@ -120,24 +121,42 @@ public class VisitController {
     }
 
     /**
-     * Rejestruje nową wizytę w systemie.
+     * Rejestruje nową wizytę w systemie na określony dzień i godzinę.
      * <p>
-     * Metoda obsługuje szereg walidacji:
-     * <ul>
-     * <li>Sprawdza istnienie pacjenta, lekarza i gabinetu.</li>
-     * <li>Weryfikuje czy termin nie jest zajęty (Conflict).</li>
-     * <li>Sprawdza czy termin mieści się w grafiku lekarza (Bad Request).</li>
-     * </ul>
+     * Metoda deleguje walidację reguł biznesowych (w tym limitu czasu wyprzedzenia) do serwisu.
      *
-     * @param visitDataRequest Dane nowej wizyty (ID zasobów, data i czas).
+     * @param visitDataRequest Dane nowej wizyty (ID zasobów, data i czas w formacie ISO-8601).
      * @throws ResponseStatusException Różne kody błędów w zależności od rodzaju naruszenia reguł biznesowych.
      */
-    @Operation(summary = "Umów wizytę", description = "Rejestruje nową wizytę dla pacjenta u wybranego lekarza.")
+    @Operation(
+            summary = "Umów wizytę",
+            description = "Rejestruje nową wizytę dla pacjenta u wybranego lekarza w konkretnym terminie (Data i Czas). " +
+                    "Format daty: ISO-8601 (np. '2025-01-20T10:30:00').",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dane nowej wizyty. Pamiętaj o pełnym formacie daty (yyyy-MM-dd'T'HH:mm:ss).",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = VisitRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Przykład wizyty",
+                                    value = """
+                                            {
+                                              "doctorId": 1,
+                                              "patientId": 1,
+                                              "consultingRoomId": 101,
+                                              "visitStart": "2026-01-20T10:00:00",
+                                              "visitEnd": "2026-01-20T10:30:00"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Wizyta została pomyślnie umówiona"),
-            @ApiResponse(responseCode = "400", description = "Błąd walidacji lub termin spoza harmonogramu lekarza"),
+            @ApiResponse(responseCode = "400", description = "Błąd walidacji, termin z przeszłości, zbyt odległy termin lub brak dyżuru lekarza"),
             @ApiResponse(responseCode = "404", description = "Nie znaleziono lekarza, pacjenta lub gabinetu"),
-            @ApiResponse(responseCode = "409", description = "Wybrany termin jest już zajęty (przez lekarza, pacjenta lub gabinet)")
+            @ApiResponse(responseCode = "409", description = "Wybrany termin jest już zajęty")
     })
     @PostMapping
     public void addVisit(@Valid @RequestBody VisitRequest visitDataRequest) {
