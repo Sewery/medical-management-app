@@ -19,11 +19,6 @@ public class DateValidator {
         this.clock = Clock.systemDefaultZone();
     }
 
-    public DateValidator(AppProperties properties, Clock clock) {
-        this.properties = properties;
-        this.clock = clock;
-    }
-
     public void validateDateRange(LocalDateTime startTime) {
         LocalDateTime now = LocalDateTime.now(clock);
         int maxDays = properties.getMaxDaysInAdvance();
