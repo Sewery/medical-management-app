@@ -3,6 +3,7 @@ package pl.edu.agh.to.backendspringboot.application.visit;
 import io.reactivex.rxjava3.core.Observable;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.backendspringboot.application.shared.DateValidator;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
@@ -41,6 +42,7 @@ public class VisitService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final ConsultingRoomRepository consultingRoomRepository;
+    private final DateValidator dateValidator;
 
     /**
      * Konstruktor serwisu wstrzykujący wymagane repozytoria.
@@ -51,12 +53,13 @@ public class VisitService {
      * @param patientRepository Repozytorium do weryfikacji danych pacjentów.
      * @param consultingRoomRepository Repozytorium do weryfikacji gabinetów.
      */
-    public VisitService(VisitRepository visitRepository, ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, PatientRepository patientRepository, ConsultingRoomRepository consultingRoomRepository) {
+    public VisitService(VisitRepository visitRepository, ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, PatientRepository patientRepository, ConsultingRoomRepository consultingRoomRepository, DateValidator dateValidator) {
         this.visitRepository = visitRepository;
         this.scheduleRepository = scheduleRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.consultingRoomRepository = consultingRoomRepository;
+        this.dateValidator = dateValidator;
     }
 
     /**
@@ -70,14 +73,15 @@ public class VisitService {
      */
     public Observable<AvailabilityResponse> getPossibleVisits(MedicalSpecialization specialization) {
         int duration= specialization.getVisitTime();
-        return Observable.fromIterable(
-                doctorRepository.findAllBySpecialization(specialization)
-        ).subscribeOn(io.reactivex.rxjava3.schedulers.Schedulers.io())
-        .map(doctor -> scheduleRepository.findAllByDoctorIdDetail(doctor.getId()))
+        LocalDateTime maxDateLimit = LocalDateTime.now().plusDays(dateValidator.getMaxDaysInAdvance());
+        return Observable.fromIterable(doctorRepository.findAllBySpecialization(specialization))
+                .subscribeOn(io.reactivex.rxjava3.schedulers.Schedulers.io())
+                .map(doctor -> scheduleRepository.findAllByDoctorIdDetail(doctor.getId()))
                 .flatMapIterable(schedules -> schedules)
                 .observeOn(io.reactivex.rxjava3.schedulers.Schedulers.computation())
                 .map(schedule -> getAllPossibleVisitsForSchedule(schedule, duration))
                 .flatMapIterable(possibleVisits -> possibleVisits)
+                .filter(visit -> visit.getVisitStart().isBefore(maxDateLimit))
                 .observeOn(io.reactivex.rxjava3.schedulers.Schedulers.io())
                 .filter(visit -> !visitRepository.collidingVisitExist(visit.getVisitStart(), visit.getVisitEnd(), visit.getDoctor().getId()))
                 .observeOn(io.reactivex.rxjava3.schedulers.Schedulers.computation())

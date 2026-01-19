@@ -2,6 +2,7 @@ package pl.edu.agh.to.backendspringboot.application.schedule;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.edu.agh.to.backendspringboot.application.shared.DateValidator;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod;
@@ -31,7 +32,6 @@ import java.util.List;
 @Service
 public class ScheduleService {
 
-    // Zmiana na Duration, ponieważ określamy długość trwania, a nie konkretną godzinę na zegarze
     private static final Duration MIN_SHIFT_DURATION = Duration.ofMinutes(30);
     private static final Duration MAX_SHIFT_DURATION = Duration.ofHours(12);
 
@@ -39,12 +39,14 @@ public class ScheduleService {
     private final DoctorRepository doctorRepository;
     private final ConsultingRoomRepository consultingRoomRepository;
     private final VisitRepository visitRepository;
+    private final DateValidator dateValidator;
 
-    public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, ConsultingRoomRepository consultingRoomRepository, VisitRepository visitRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, ConsultingRoomRepository consultingRoomRepository, VisitRepository visitRepository, DateValidator dateValidator) {
         this.scheduleRepository = scheduleRepository;
         this.doctorRepository = doctorRepository;
         this.consultingRoomRepository = consultingRoomRepository;
         this.visitRepository = visitRepository;
+        this.dateValidator = dateValidator;
     }
 
     /**
@@ -63,8 +65,8 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public AvailabilityResponse getAvailableDoctorsAndConsultingRooms(LocalDateTime startTime, LocalDateTime endTime) {
         validateScheduleTimePeriod(startTime, endTime);
+        dateValidator.validateDateRange(startTime);
 
-        // Zakładamy, że metody w repozytorium również zostały zaktualizowane do przyjmowania LocalDateTime
         var doctors = scheduleRepository.findAvailableDoctorsInPeriod(startTime, endTime)
                 .stream().map(DoctorBriefResponse::from).toList();
 
@@ -80,6 +82,7 @@ public class ScheduleService {
     @Transactional
     public void addSchedule(ScheduleRequest scheduleRequest) {
         validateScheduleTimePeriod(scheduleRequest.startTime(), scheduleRequest.endTime());
+        dateValidator.validateDateRange(scheduleRequest.startTime());
 
         int doctorId = scheduleRequest.doctorId();
         int consultingRoomId = scheduleRequest.consultingRoomId();
@@ -109,7 +112,6 @@ public class ScheduleService {
         }
         Schedule schedule = scheduleRepository.findById(scheduleId).get();
 
-        // Zakładamy, że getShiftStart/End w encji Schedule zwracają teraz LocalDateTime
         if (visitRepository.visitExistsForSchedule(schedule.getDoctor().getId(), schedule.getShiftStart(), schedule.getShiftEnd())) {
             throw new VisitAssignedToScheduleException("Cannot delete schedule with assigned visits");
         }
