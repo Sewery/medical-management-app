@@ -108,11 +108,358 @@ function App() {
   const ROOMS_API_URL = 'http://localhost:8080/consulting-room';
   const SCHEDULES_API_URL = 'http://localhost:8080/schedules';
 
+  // M3: Wizyty (DOPASUJ jeśli backend ma inną ścieżkę)
+  const VISITS_API_URL = 'http://localhost:8080/visits';
+
+  // Helpers
+  // (USUŃ/nie używaj już kalendarza dla wizyt)
+  // const toISODate = ...
+  // const addDays = ...
+
+  const buildQuery = (params) => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') qs.set(k, String(v));
+    });
+    return qs.toString();
+  };
+  const fmtTime = (t) => (t ? String(t).slice(0, 5) : '');
+
+  const enumToTitleCase = (enumValue) =>
+    String(enumValue || '')
+      .toLowerCase()
+      .split('_')
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+      .join('_');
+
+  // NEW: kandydaci parametru specialization dla /visits/availability
+  const specializationParamCandidates = (specEnum) => {
+    const titleNoUnderscore = enumToTitleCase(specEnum).replaceAll('_', '');
+    return [titleNoUnderscore, specEnum].filter(Boolean);
+  };
+
+  // ===== M3: lista dyżurów + usuwanie =====
+  const [schedules, setSchedules] = useState([]);
+  const [schedulesListError, setSchedulesListError] = useState('');
+
+  const getScheduleId = (schedule) =>
+    // Backend: GET /schedules => dutyTime.id jest ID dyżuru (schedule)
+    schedule?.dutyTime?.id ??
+    schedule?.id ??
+    schedule?.scheduleId ??
+    schedule?.dutyId ??
+    schedule?.dutyTimeId;
+
+  const fetchSchedules = async () => {
+    setSchedulesListError('');
+    try {
+      const res = await fetch(SCHEDULES_API_URL);
+      if (!res.ok) {
+        setSchedulesListError('Nie udało się pobrać listy dyżurów');
+        setSchedules([]);
+        return;
+      }
+      const data = await res.json();
+      setSchedules(Array.isArray(data) ? data : []);
+    } catch {
+      setSchedulesListError('Błąd połączenia z serwerem (dyżury)');
+      setSchedules([]);
+    }
+  };
+
+  const handleScheduleDelete = async (scheduleOrId) => {
+    const id =
+      typeof scheduleOrId === 'object' && scheduleOrId !== null
+        ? getScheduleId(scheduleOrId)
+        : scheduleOrId;
+
+    if (!id) {
+      console.error('Próba usunięcia dyżuru bez ID:', scheduleOrId);
+      setScheduleSuccess('');
+      setScheduleError("Błąd: Frontend nie widzi ID dyżuru. Upewnij się, że backend zwraca dutyTime.id jako ID dyżuru w odpowiedzi GET /schedules.");
+      return;
+    }
+
+    setScheduleError('');
+    setScheduleSuccess('');
+    if (!window.confirm('Czy na pewno chcesz usunąć ten dyżur?')) return;
+
+    try {
+      const res = await fetch(`${SCHEDULES_API_URL}/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchSchedules();
+        fetchRooms();
+        fetchDoctors();
+        setScheduleSuccess('Dyżur został usunięty');
+        window.setTimeout(() => setScheduleSuccess(''), 3000);
+      } else {
+        try {
+          const errData = await res.json();
+          setScheduleError(errData.message || 'Błąd usuwania dyżuru');
+        } catch {
+          setScheduleError('Błąd usuwania dyżuru');
+        }
+      }
+    } catch {
+      setScheduleError('Błąd połączenia z serwerem');
+    }
+  };
+
+  // ===== M3: wizyty (wolne terminy + umów/odwołaj) =====
+  const [bookError, setBookError] = useState('');
+  const [bookSuccess, setBookSuccess] = useState('');
+  const [isLoadingBookAvailability, setIsLoadingBookAvailability] = useState(false);
+  const [bookAvailabilitySlots, setBookAvailabilitySlots] = useState([]);
+
+  const [bookForm, setBookForm] = useState({
+    patientId: '',
+    specialization: 'INTERNAL_MEDICINE',
+    doctorId: '',
+    consultingRoomId: '',
+  });
+
+  const [selectedBookSlot, setSelectedBookSlot] = useState(null);
+
+  // Segment 3: wizyty pacjentów
+  const [visitsList, setVisitsList] = useState([]);
+  const [visitsListError, setVisitsListError] = useState('');
+  const [isLoadingVisitsList, setIsLoadingVisitsList] = useState(false);
+
+  const [selectedVisitDetails, setSelectedVisitDetails] = useState(null);
+  const [visitDetailsError, setVisitDetailsError] = useState('');
+
+  // NEW: osobne szczegóły do modala wizyty (żeby nie mieszać z modalami innych zakładek)
+  const [visitPatientDetails, setVisitPatientDetails] = useState(null);
+  const [visitDoctorDetails, setVisitDoctorDetails] = useState(null);
+  const [visitRoomDetails, setVisitRoomDetails] = useState(null);
+
+  const uniqueDoctorsFromSlots = (slots) => {
+    const map = new Map();
+    (slots || []).forEach((s) => {
+      const d = s?.doctor;
+      if (d?.id && !map.has(d.id)) map.set(d.id, d);
+    });
+    return Array.from(map.values());
+  };
+
+  const fetchVisitsAvailability = async (specEnum) => {
+    const candidates = specializationParamCandidates(specEnum);
+    let lastErr = null;
+
+    for (const specialization of candidates) {
+      try {
+        const qs = buildQuery({ specialization });
+        const res = await fetch(`${VISITS_API_URL}/availability?${qs}`);
+        if (!res.ok) {
+          lastErr = res;
+          continue;
+        }
+        const data = await res.json();
+        const outer = Array.isArray(data) ? data : [];
+        // Response: [ [ { doctor, visitStart, visitEnd }, ... ] ]
+        return outer.flatMap((dayArr) => (Array.isArray(dayArr) ? dayArr : []));
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+
+    throw lastErr || new Error('availability failed');
+  };
+
+  // --- zmień loadBookAvailability tak, by mógł być wołany po zmianie specjalizacji bez resetów ---
+  const loadBookAvailability = async (specEnum = bookForm.specialization, opts = { reset: true }) => {
+    if (opts.reset) {
+      setBookError('');
+      setBookSuccess('');
+      setBookAvailabilitySlots([]);
+      setSelectedBookSlot(null);
+      setBookForm((s) => ({ ...s, doctorId: '', consultingRoomId: '' }));
+    } else {
+      setBookError('');
+      setBookSuccess('');
+      setBookAvailabilitySlots([]);
+      setSelectedBookSlot(null);
+    }
+
+    setIsLoadingBookAvailability(true);
+    try {
+      const slots = await fetchVisitsAvailability(specEnum);
+      setBookAvailabilitySlots(slots);
+    } catch {
+      setBookError('Nie udało się pobrać dostępnych terminów');
+    } finally {
+      setIsLoadingBookAvailability(false);
+    }
+  };
+
+  // NEW: po wybraniu specjalizacji pobierz asynchronicznie dostępność (a więc i listę lekarzy)
+  useEffect(() => {
+    // jeśli ktoś wybierze specjalizację, od razu odśwież listę lekarzy/slotów
+    // (bez resetowania pacjenta; reset doctorId/roomId już dzieje się w handleBookFormChange)
+    loadBookAvailability(bookForm.specialization, { reset: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookForm.specialization]);
+
+  const handleBookFormChange = (e) => {
+    const { name, value } = e.target;
+
+    setBookForm((s) => {
+      const next = { ...s, [name]: value };
+
+      // zmiana specialization -> reset wyborów zależnych
+      if (name === 'specialization') {
+        next.doctorId = '';
+        next.consultingRoomId = '';
+      }
+      // zmiana doctorId -> reset slot/room
+      if (name === 'doctorId') {
+        next.consultingRoomId = '';
+      }
+      return next;
+    });
+
+    if (name === 'doctorId') {
+      setSelectedBookSlot(null);
+    }
+    if (name === 'specialization') {
+      setSelectedBookSlot(null);
+      setBookAvailabilitySlots([]);
+    }
+  };
+
+  const submitBookVisit = async () => {
+    setBookError('');
+    setBookSuccess('');
+
+    if (!bookForm.patientId) return setBookError('Wybierz pacjenta');
+    if (!bookForm.specialization) return setBookError('Wybierz specjalizację');
+    if (!bookForm.doctorId) return setBookError('Wybierz lekarza');
+    if (!selectedBookSlot?.visitStart || !selectedBookSlot?.visitEnd) return setBookError('Wybierz termin');
+    if (!bookForm.consultingRoomId) return setBookError('Wybierz gabinet');
+
+    const payload = {
+      doctorId: Number(bookForm.doctorId),
+      patientId: Number(bookForm.patientId),
+      consultingRoomId: Number(bookForm.consultingRoomId),
+      visitStart: fmtTime(selectedBookSlot.visitStart),
+      visitEnd: fmtTime(selectedBookSlot.visitEnd),
+    };
+
+    try {
+      const res = await fetch(VISITS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        try {
+          const errData = await res.json();
+          setBookError(errData.message || 'Nie udało się umówić wizyty');
+        } catch {
+          setBookError('Nie udało się umówić wizyty');
+        }
+        return;
+      }
+
+      setBookSuccess('Wizyta została umówiona');
+      // odśwież segmenty
+      loadBookAvailability();
+      fetchVisitsList();
+    } catch {
+      setBookError('Błąd połączenia z serwerem');
+    }
+  };
+
+  const fetchVisitsList = async () => {
+    setVisitsListError('');
+    setIsLoadingVisitsList(true);
+    try {
+      const res = await fetch(VISITS_API_URL);
+      if (!res.ok) throw new Error('visits list failed');
+      const data = await res.json();
+      setVisitsList(Array.isArray(data) ? data : []);
+    } catch {
+      setVisitsListError('Nie udało się pobrać wizyt');
+      setVisitsList([]);
+    } finally {
+      setIsLoadingVisitsList(false);
+    }
+  };
+
+  const fetchVisitDetails = async (id) => {
+    if (!id) return;
+    setVisitDetailsError('');
+    setVisitPatientDetails(null);
+    setVisitDoctorDetails(null);
+    setVisitRoomDetails(null);
+
+    try {
+      const res = await fetch(`${VISITS_API_URL}/${id}`);
+      if (!res.ok) throw new Error('details failed');
+      const data = await res.json();
+      setSelectedVisitDetails(data);
+
+      const patientId = data?.patient?.id ?? data?.patientId;
+      const doctorId = data?.doctor?.id ?? data?.doctorId;
+      const roomId = data?.consultingRoom?.id ?? data?.consultingRoomId;
+
+      // równolegle dociągamy szczegóły (jeśli endpointy istnieją jak w innych zakładkach)
+      await Promise.allSettled([
+        patientId ? fetch(`${PATIENTS_API_URL}/${patientId}`).then((r) => (r.ok ? r.json() : null)).then(setVisitPatientDetails) : Promise.resolve(),
+        doctorId ? fetch(`${API_URL}/${doctorId}`).then((r) => (r.ok ? r.json() : null)).then(setVisitDoctorDetails) : Promise.resolve(),
+        roomId ? fetch(`${ROOMS_API_URL}/${roomId}`).then((r) => (r.ok ? r.json() : null)).then(setVisitRoomDetails) : Promise.resolve(),
+      ]);
+    } catch {
+      setVisitDetailsError('Nie udało się pobrać szczegółów wizyty');
+      setSelectedVisitDetails(null);
+    }
+  };
+
+  const deleteVisit = async (id) => {
+    if (!id) return;
+    if (!window.confirm('Czy na pewno chcesz usunąć tę wizytę?')) return;
+
+    try {
+      const res = await fetch(`${VISITS_API_URL}/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        try {
+          const errData = await res.json();
+          alert(errData.message || 'Błąd usuwania wizyty');
+        } catch {
+          alert('Błąd usuwania wizyty');
+        }
+        return;
+      }
+      fetchVisitsList();
+      loadBookAvailability();
+    } catch {
+      alert('Błąd połączenia z serwerem');
+    }
+  };
+
   useEffect(() => {
     fetchDoctors();
     fetchPatients();
     fetchRooms();
+    fetchSchedules(); // NEW
   }, []);
+
+  // Odśwież dane tabeli przy wejściu w zakładkę (żeby po dodaniu/usunięciu zawsze było aktualnie)
+  useEffect(() => {
+    if (activeTab === 'doctors') fetchDoctors();
+    if (activeTab === 'patients') fetchPatients();
+    if (activeTab === 'rooms') fetchRooms();
+    if (activeTab === 'schedules') fetchSchedules();
+    if (activeTab === 'visits') {
+      fetchVisitsList();
+      // dociągnij dostępność jeśli jeszcze jej nie ma
+      if (!isLoadingBookAvailability && bookAvailabilitySlots.length === 0) {
+        loadBookAvailability(bookForm.specialization, { reset: false });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const fetchDoctors = async () => {
     try {
@@ -478,8 +825,8 @@ function App() {
         setScheduleSuccess('Dyżur został zaplanowany!');
         setScheduleFormData({ startTime: '', endTime: '', doctorId: '', consultingRoomId: '' });
         setAvailability(null);
-        // Odśwież dane gabinetów żeby pokazać nowy dyżur
         fetchRooms();
+        fetchSchedules(); // NEW
       } else {
         try {
           const errData = await res.json();
@@ -547,6 +894,16 @@ function App() {
             }`}
           >
             <CalendarIcon /> Dyżury
+          </button>
+          <button
+            onClick={() => setActiveTab('visits')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition ${
+              activeTab === 'visits'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <CalendarIcon /> Wizyty
           </button>
         </div>
 
@@ -934,14 +1291,330 @@ function App() {
           </>
         )}
 
+        {/* ================== SEKCJA WIZYT ================== */}
+        {activeTab === 'visits' && (
+          <>
+            {/* ===== Segment 1: Umów wizytę ===== */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-slate-800">Wizyty</h2>
+              <p className="text-slate-500 text-sm mt-1">Umów wizytę, przeglądaj dostępność i zarządzaj wizytami</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-slate-800">Umów wizytę</h3>
+              </div>
+
+              {bookError && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm border border-red-100">{bookError}</div>}
+              {bookSuccess && <div className="bg-green-50 text-green-600 p-3 rounded-lg mb-4 text-sm border border-green-100">{bookSuccess}</div>}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Pacjent</label>
+                  <select
+                    name="patientId"
+                    value={bookForm.patientId}
+                    onChange={handleBookFormChange}
+                    className="input-field bg-white"
+                  >
+                    <option value="">-- wybierz pacjenta --</option>
+                    {patients.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.firstName} {p.lastName} ({p.pesel})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Specjalizacja</label>
+                  <select
+                    name="specialization"
+                    value={bookForm.specialization}
+                    onChange={handleBookFormChange}
+                    className="input-field bg-white"
+                  >
+                    {SPECIALIZATIONS.map((spec) => (
+                      <option key={spec.value} value={spec.value}>
+                        {spec.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Lekarz</label>
+                  <select
+                    name="doctorId"
+                    value={bookForm.doctorId}
+                    onChange={handleBookFormChange}
+                    disabled={!bookForm.specialization || isLoadingBookAvailability || bookAvailabilitySlots.length === 0}
+                    className={`input-field bg-white ${(bookForm.specialization && isLoadingBookAvailability) ? 'animate-pulse bg-slate-100 text-slate-400' : ''}`}
+                  >
+                    <option value="">
+                      {!bookForm.specialization
+                        ? 'Najpierw wybierz specjalizację'
+                        : (isLoadingBookAvailability
+                          ? 'Ładowanie lekarzy...'
+                          : (bookAvailabilitySlots.length === 0 ? 'Brak dostępnych lekarzy' : '-- wybierz lekarza --'))}
+                    </option>
+                    {uniqueDoctorsFromSlots(bookAvailabilitySlots).map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {/* USUNIĘTO dopisek "(specialization)" */}
+                        {d.firstName} {d.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Kafelki terminów */}
+              <div className="mt-5 border-t pt-4">
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-3">Dostępne terminy i pokoje</p>
+
+                {bookForm.doctorId ? (
+                  <div className="flex flex-wrap gap-2">
+                    {bookAvailabilitySlots
+                      .filter((s) => String(s?.doctor?.id) === String(bookForm.doctorId))
+                      .map((slot, idx) => {
+                        const selected =
+                          selectedBookSlot?.visitStart === slot?.visitStart &&
+                          selectedBookSlot?.visitEnd === slot?.visitEnd &&
+                          String(selectedBookSlot?.doctor?.id) === String(slot?.doctor?.id);
+
+                        const roomNumber = slot?.consultingRoom?.roomNumber;
+
+                        return (
+                          <button
+                            key={`${slot?.doctor?.id}-${slot?.visitStart}-${idx}`}
+                            onClick={() => {
+                              setSelectedBookSlot(slot);
+                              const roomId = slot?.consultingRoom?.id;
+                              setBookForm((s) => ({
+                                ...s,
+                                consultingRoomId: roomId ? String(roomId) : '',
+                              }));
+                            }}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
+                              selected
+                                ? 'bg-teal-50 border-teal-300 text-teal-800'
+                                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title="Kliknij, aby wybrać termin i pokój"
+                          >
+                            <span className="font-mono">{fmtTime(slot?.visitStart)} - {fmtTime(slot?.visitEnd)}</span>
+                            {roomNumber !== undefined && roomNumber !== null && String(roomNumber) !== '' ? (
+                              <span className="ml-2">• Pokój {roomNumber}</span>
+                            ) : (
+                              <span className="ml-2 text-slate-400">• Pokój: —</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-sm">Wybierz lekarza, aby zobaczyć terminy</p>
+                )}
+
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={submitBookVisit}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition"
+                  >
+                    Umów wizytę
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ===== Segment 3: Wizyty pacjentów ===== */}
+            <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-slate-800">Wizyty pacjentów</h3>
+                <button
+                  onClick={fetchVisitsList}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  Odśwież
+                </button>
+              </div>
+
+              {visitsListError && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm border border-red-100">{visitsListError}</div>}
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
+                    <tr>
+                      <th className="px-4 py-3">Numer pokoju</th>
+                      <th className="px-4 py-3">Start wizyty</th>
+                      <th className="px-4 py-3">Koniec wizyty</th>
+                      <th className="px-4 py-3 text-right">Akcje</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {isLoadingVisitsList ? (
+                      <tr><td colSpan="4" className="px-4 py-6 text-center text-slate-400">Ładowanie...</td></tr>
+                    ) : visitsList.length === 0 ? (
+                      <tr><td colSpan="4" className="px-4 py-6 text-center text-slate-400">Brak wizyt</td></tr>
+                    ) : (
+                      visitsList.map((v) => {
+                        const roomNumber =
+                          v?.consultingRoom?.roomNumber ?? v?.consultingRoom?.roomNumber === 0
+                            ? v.consultingRoom.roomNumber
+                            : (v?.consultingRoomId ? `ID: ${v.consultingRoomId}` : '—');
+
+                        const start = v?.visitStart ?? v?.startTime;
+                        const end = v?.visitEnd ?? v?.endTime;
+
+                        return (
+                          <tr key={v.id || `${start}-${end}-${String(roomNumber)}`} className="hover:bg-slate-50 transition">
+                            <td className="px-4 py-3">{typeof roomNumber === 'string' ? roomNumber : `Pokój ${roomNumber}`}</td>
+                            <td className="px-4 py-3 font-mono text-sm">{fmtTime(start)}</td>
+                            <td className="px-4 py-3 font-mono text-sm">{fmtTime(end)}</td>
+                            <td className="px-4 py-3 text-right space-x-2">
+                              <button
+                                onClick={() => fetchVisitDetails(v.id)}
+                                className="text-slate-400 hover:text-teal-600 transition p-1"
+                                title="Szczegóły"
+                              >
+                                <EyeIcon />
+                              </button>
+                              <button
+                                onClick={() => deleteVisit(v.id)}
+                                className="text-slate-400 hover:text-red-600 transition p-1"
+                                title="Usuń"
+                              >
+                                <TrashIcon />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Modal: szczegóły wizyty (rozszerzony) */}
+              {selectedVisitDetails && (
+                <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                  <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden">
+                    <div className="bg-teal-50 px-6 py-4 border-b border-teal-200 flex justify-between items-center">
+                      <h3 className="font-bold text-lg text-slate-800">Szczegóły wizyty</h3>
+                      <button
+                        onClick={() => {
+                          setSelectedVisitDetails(null);
+                          setVisitPatientDetails(null);
+                          setVisitDoctorDetails(null);
+                          setVisitRoomDetails(null);
+                        }}
+                        className="text-slate-400 hover:text-slate-600"
+                      >
+                        <CloseIcon />
+                      </button>
+                    </div>
+
+                    <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                      {visitDetailsError && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100">{visitDetailsError}</div>
+                      )}
+
+                      {/* Czas wizyty */}
+                      <div>
+                        <label className="text-xs text-slate-400 uppercase font-bold">Czas wizyty</label>
+                        <p className="font-mono text-slate-800">
+                          {fmtTime(selectedVisitDetails.visitStart ?? selectedVisitDetails.startTime)} - {fmtTime(selectedVisitDetails.visitEnd ?? selectedVisitDetails.endTime)}
+                        </p>
+                      </div>
+
+                      {/* Pacjent */}
+                      <div className="pt-3 border-t border-slate-100">
+                        <label className="text-xs text-slate-400 uppercase font-bold">Dane pacjenta</label>
+                        <div className="text-sm text-slate-700 mt-2">
+                          {visitPatientDetails ? (
+                            <>
+                              <div><span className="font-semibold">Imię i nazwisko:</span> {visitPatientDetails.firstName} {visitPatientDetails.lastName}</div>
+                              <div><span className="font-semibold">PESEL:</span> <span className="font-mono">{visitPatientDetails.pesel}</span></div>
+                              <div className="mt-2">
+                                <span className="font-semibold">Adres:</span><br />
+                                ul. {visitPatientDetails.street}<br />
+                                {visitPatientDetails.postalCode} {visitPatientDetails.city}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-slate-400">Ładowanie danych pacjenta...</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Lekarz */}
+                      <div className="pt-3 border-t border-slate-100">
+                        <label className="text-xs text-slate-400 uppercase font-bold">Dane lekarza</label>
+                        <div className="text-sm text-slate-700 mt-2">
+                          {visitDoctorDetails ? (
+                            <>
+                              <div><span className="font-semibold">Imię i nazwisko:</span> {visitDoctorDetails.firstName} {visitDoctorDetails.lastName}</div>
+                              <div><span className="font-semibold">Specjalizacja:</span> {visitDoctorDetails.specialization}</div>
+                              <div><span className="font-semibold">PESEL:</span> <span className="font-mono">{visitDoctorDetails.pesel}</span></div>
+                            </>
+                          ) : (
+                            <div className="text-slate-400">Ładowanie danych lekarza...</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pokój */}
+                      <div className="pt-3 border-t border-slate-100">
+                        <label className="text-xs text-slate-400 uppercase font-bold">Informacje o pokoju</label>
+                        <div className="text-sm text-slate-700 mt-2">
+                          {visitRoomDetails ? (
+                            <>
+                              <div><span className="font-semibold">Numer:</span> Pokój {visitRoomDetails.roomNumber}</div>
+                              <div className="mt-2">
+                                <span className="font-semibold">Wyposażenie:</span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {visitRoomDetails.hasExaminationBed && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Łóżko</span>}
+                                  {visitRoomDetails.hasECGMachine && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">EKG</span>}
+                                  {visitRoomDetails.hasScale && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Waga</span>}
+                                  {visitRoomDetails.hasThermometer && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Termometr</span>}
+                                  {visitRoomDetails.hasDiagnosticSet && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Diagnostyka</span>}
+                                  {!visitRoomDetails.hasExaminationBed && !visitRoomDetails.hasECGMachine && !visitRoomDetails.hasScale && !visitRoomDetails.hasThermometer && !visitRoomDetails.hasDiagnosticSet && (
+                                    <span className="text-slate-400 text-xs">Brak wyposażenia</span>
+                                  )}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-slate-400">Ładowanie danych pokoju...</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-teal-50 px-6 py-3 border-t border-teal-200 text-right">
+                      <button
+                        onClick={() => {
+                          setSelectedVisitDetails(null);
+                          setVisitPatientDetails(null);
+                          setVisitDoctorDetails(null);
+                          setVisitRoomDetails(null);
+                        }}
+                        className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2"
+                      >
+                        Zamknij
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         {/* ================== SEKCJA DYŻURÓW ================== */}
         {activeTab === 'schedules' && (
           <>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-slate-800">Planowanie Dyżurów</h2>
-              <p className="text-slate-500 text-sm mt-1">Sprawdź dostępność i zaplanuj dyżur lekarza w gabinecie</p>
-            </div>
-
+            {/* KARTA PLANOWANIA DYŻURÓW */}
             <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
               {scheduleError && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm border border-red-100">
@@ -1087,6 +1760,69 @@ function App() {
                   </form>
                 </div>
               )}
+            </div>
+
+            {/* NEW: lista dyżurów + usuwanie */}
+            <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-slate-800">Lista dyżurów</h3>
+                <button
+                  onClick={fetchSchedules}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  Odśwież
+                </button>
+              </div>
+
+              {schedulesListError && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm border border-red-100">
+                  {schedulesListError}
+                </div>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
+                    <tr>
+                      <th className="px-4 py-3">Lekarz</th>
+                      <th className="px-4 py-3">Gabinet</th>
+                      <th className="px-4 py-3">Godziny</th>
+                      <th className="px-4 py-3 text-right">Akcje</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {schedules.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="px-4 py-6 text-center text-slate-400">Brak dyżurów</td>
+                      </tr>
+                    ) : (
+                      schedules.map((s) => (
+                        <tr key={getScheduleId(s) || `${s?.doctor?.id}-${s?.consultingRoom?.id}-${s?.dutyTime?.shiftStart}`} className="hover:bg-slate-50 transition">
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-slate-900">
+                              {s.doctor?.firstName} {s.doctor?.lastName}
+                            </div>
+                            <div className="text-xs text-slate-500">{s.doctor?.specialization}</div>
+                          </td>
+                          <td className="px-4 py-3">Pokój {s.consultingRoom?.roomNumber}</td>
+                          <td className="px-4 py-3 font-mono text-sm text-slate-700">
+                            {fmtTime(s.dutyTime?.shiftStart)} - {fmtTime(s.dutyTime?.shiftEnd)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => handleScheduleDelete(s)}
+                              className="text-slate-400 hover:text-red-600 transition p-1"
+                              title="Usuń dyżur"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </>
         )}
