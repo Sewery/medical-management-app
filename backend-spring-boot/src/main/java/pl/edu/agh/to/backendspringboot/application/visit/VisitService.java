@@ -175,11 +175,11 @@ public class VisitService {
         List<AvailabilityResponse> possibleVisits = new ArrayList<AvailabilityResponse>();
         int start = schedule.getShiftStart().getHour()*60 + schedule.getShiftStart().getMinute();
         int end = schedule.getShiftEnd().getHour()*60 + schedule.getShiftEnd().getMinute();
-        for(int time = start; time + duration -1  <= end; time += duration + 1 ){
+        for(int time = start; time + duration <= end; time += duration){
             int hour = time / 60;
             int minute = time % 60;
             LocalTime visitStart = LocalTime.of(hour, minute);
-            LocalTime visitEnd = visitStart.plusMinutes(duration-1);
+            LocalTime visitEnd = visitStart.plusMinutes(duration);
             possibleVisits.add(createAvailabilityResponse(schedule, visitStart, visitEnd));
         }
         return possibleVisits;

@@ -50,7 +50,7 @@ public class VisitController {
      * Metoda wykorzystuje programowanie reaktywne (RxJava) do asynchronicznego pobrania
      * i przetworzenia dostępnych slotów czasowych u wszystkich lekarzy danej specjalizacji.
      *
-     * @param specialization Nazwa specjalizacji (zgodna z enum MedicalSpecialization, np. "CARDIOLOGIST","kardiolog").
+     * @param specialization Nazwa specjalizacji (zgodna z enum MedicalSpecialization, np. "CARDIOLOGY","kardiolog").
      * @return Strumień (Observable) zawierający listę dostępnych terminów.
      */
     @Operation(
@@ -61,14 +61,14 @@ public class VisitController {
                     description = "Specjalizacja lekarska w języku polskim lub angielskim, ignorowana wielkość liter",
                     required = true,
                     in = ParameterIn.QUERY,
-                    example = "Cardiologist"
+                    example = "Cardiology"
             )
     )
     @GetMapping("/availability")
     public Observable<List<AvailabilityResponse>> getAvailability(@RequestParam String specialization) {
         // Uwaga: dodałem @RequestParam, aby Swagger poprawnie interpretował parametr, 
         // choć Spring domyślnie mapuje argumenty proste jako parametry zapytania.
-        MedicalSpecialization medicalSpecialization = MedicalSpecialization.valueOf(specialization);
+        MedicalSpecialization medicalSpecialization = MedicalSpecialization.getEnum(specialization);
         return visitService.getPossibleVisits(medicalSpecialization).toList().toObservable();
     }
 
