@@ -100,7 +100,11 @@ public class VisitController {
     })
     @GetMapping("/{id}")
     public VisitDetailResponse getVisitById(@PathVariable int id) {
-        return VisitDetailResponse.from(visitService.getVisitById(id));
+        try {
+            return VisitDetailResponse.from(visitService.getVisitById(id));
+        } catch (NullPointerException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     /**

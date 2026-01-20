@@ -98,6 +98,7 @@ public class PatientController {
     @Operation(summary = "Usuń pacjenta", description = "Usuwa pacjenta z bazy danych.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pacjent usunięty"),
+            @ApiResponse(responseCode = "409", description = "Pacjent ma umówioną wizytę"),
             @ApiResponse(responseCode = "404", description = "Pacjent nie znaleziony")
     })
     @DeleteMapping("/{id}")

@@ -49,10 +49,14 @@ public class DoctorController {
     @Operation(
             summary = "Dodaj nowego lekarza",
             description = "Tworzy rekord lekarza w bazie danych. " +
-                    "Wymaga podania poprawnej specjalizacji medycznej. " +
-                    "**Dostępne specjalizacje (przykłady):** CARDIOLOGIST, DENTIST, DERMATOLOGIST, ENDOCRINOLOGIST, " +
-                    "GASTROENTEROLOGIST, GYNECOLOGIST, NEUROLOGIST, ONCOLOGIST, OPHTHALMOLOGIST, PEDIATRICIAN, " +
-                    "PSYCHIATRIST, SURGEON, UROLOGIST."
+                    "Wymaga podania poprawnej specjalizacji medycznej (akceptowane nazwy angielskie lub polskie). " +
+                    "**Dostępne specjalizacje:** INTERNAL_MEDICINE (Choroby wewnętrzne), FAMILY_MEDICINE (Medycyna rodzinna), " +
+                    "PEDIATRICS (Pediatria), ALLERGOLOGY (Alergologia), CARDIOLOGY (Kardiologia), DERMATOLOGY (Dermatologia), " +
+                    "ENDOCRINOLOGY (Endokrynologia), GASTROENTEROLOGY (Gastroenterologia), GENERAL_SURGERY (Chirurgia ogólna), " +
+                    "GYNECOLOGY (Ginekologia), NEUROLOGY (Neurologia), ONCOLOGY (Onkologia), OPHTHALMOLOGY (Okulistyka), " +
+                    "ORTHOPEDICS (Ortopedia), OTOLARYNGOLOGY (Otolaryngologia), PSYCHIATRY (Psychiatria), " +
+                    "PULMONOLOGY (Pulmonologia), RADIOLOGY (Radiologia), RHEUMATOLOGY (Reumatologia), " +
+                    "UROLOGY (Urologia), DENTISTRY (Stomatologia)."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lekarz został pomyślnie dodany"),
