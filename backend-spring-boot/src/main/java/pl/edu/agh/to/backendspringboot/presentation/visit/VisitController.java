@@ -31,7 +31,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("visits")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(originPatterns = {"http://localhost:3000", "https://*.run.app"})
 @Tag(name = "Visit Controller", description = "API do zarządzania wizytami lekarskimi i sprawdzania dostępności")
 public class VisitController {
 

@@ -30,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("schedules")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(originPatterns = {"http://localhost:3000", "https://*.run.app"})
 @Tag(name = "Schedule Controller", description = "API do zarządzania dyżurami lekarzy (Data i Czas)")
 public class ScheduleController {
 

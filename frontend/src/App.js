@@ -103,13 +103,14 @@ function App() {
     consultingRoomId: ''
   });
 
-  const API_URL = 'http://localhost:8080/doctors';
-  const PATIENTS_API_URL = 'http://localhost:8080/patients';
-  const ROOMS_API_URL = 'http://localhost:8080/consulting-room';
-  const SCHEDULES_API_URL = 'http://localhost:8080/schedules';
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+  const API_URL = `${API_BASE_URL}/doctors`;
+  const PATIENTS_API_URL = `${API_BASE_URL}/patients`;
+  const ROOMS_API_URL = `${API_BASE_URL}/consulting-room`;
+  const SCHEDULES_API_URL = `${API_BASE_URL}/schedules`;
 
   // M3: Wizyty (DOPASUJ jeśli backend ma inną ścieżkę)
-  const VISITS_API_URL = 'http://localhost:8080/visits';
+  const VISITS_API_URL = `${API_BASE_URL}/visits`;
 
   // Helpers
   // (USUŃ/nie używaj już kalendarza dla wizyt)
