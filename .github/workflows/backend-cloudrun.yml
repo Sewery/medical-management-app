@@ -33,6 +33,10 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Make Gradle wrapper executable
+        working-directory: backend-spring-boot
+        run: chmod +x ./gradlew
+
       - name: Test backend
         working-directory: backend-spring-boot
         run: ./gradlew clean test --no-daemon
