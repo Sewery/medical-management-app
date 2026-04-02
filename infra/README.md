@@ -13,26 +13,26 @@ This folder contains Terraform configuration for GCP infrastructure used by the 
 
 1. Go to environment folder:
 
-   ```powershell
+   ```bash
    cd infra/environments/dev
    ```
 
 2. Create variables file:
 
-   ```powershell
+   ```bash
    copy terraform.tfvars.example terraform.tfvars
    ```
 
 3. Initialize and inspect:
 
-   ```powershell
+   ```bash
    terraform init
    terraform plan
    ```
 
 4. Apply:
 
-   ```powershell
+   ```bash
    terraform apply
    ```
 
@@ -40,7 +40,7 @@ This folder contains Terraform configuration for GCP infrastructure used by the 
 
 If resources already exist from manual deployment, import them first to avoid recreation.
 
-```powershell
+```bash
 terraform import google_artifact_registry_repository.repo "projects/medclinic-platform-gcp/locations/europe-central2/repositories/medical-clinic-repo"
 terraform import google_service_account.runtime "projects/medclinic-platform-gcp/serviceAccounts/medical-clinic-run-sa@medclinic-platform-gcp.iam.gserviceaccount.com"
 terraform import google_cloud_run_v2_service.api "projects/medclinic-platform-gcp/locations/europe-central2/services/medical-clinic-api"

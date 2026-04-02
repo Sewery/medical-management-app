@@ -1,0 +1,70 @@
+name: Backend CI/CD to Cloud Run
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend-spring-boot/**"
+      - ".github/workflows/backend-cloudrun.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: europe-central2
+  REPOSITORY: medical-clinic-repo
+  IMAGE_NAME: backend
+  SERVICE_NAME: medical-clinic-api
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Test backend
+        working-directory: backend-spring-boot
+        run: ./gradlew clean test --no-daemon
+
+      - name: Authenticate to Google Cloud (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure project
+        run: gcloud config set project "$PROJECT_ID"
+
+      - name: Build and push image with Cloud Build
+        run: |
+          gcloud builds submit ./backend-spring-boot \
+            --tag "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:${{ github.sha }}"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$SERVICE_NAME" \
+            --image "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:${{ github.sha }}" \
+            --region "$REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080
+
+      - name: Print service URL
+        run: |
+          gcloud run services describe "$SERVICE_NAME" \
+            --region "$REGION" \
+            --format='value(status.url)'
