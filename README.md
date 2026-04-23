@@ -1,92 +1,148 @@
 # Medical Clinic Management System
 
-A full-stack application designed to manage medical clinic operations, including staff scheduling, patient registration, and consulting room equipment tracking.
+Full-stack medical clinic application with a production-style DevOps setup on GCP.
 
-## Tech Stack
+The system supports doctor, patient, consulting room, schedule, and visit management. The backend is deployed to Google Cloud Run, infrastructure is managed with Terraform, and deployments are automated with GitHub Actions.
 
-### Backend
-* **Framework:** Spring Boot 3
-* **Language:** Java 21+
-* **Database Access:** Spring Data JPA (via Repositories for Doctors, Patients, Rooms, and Schedules)
-* **Error Handling:** Global REST Controller Advice for validation and exception mapping
+## Architecture Summary
 
-### Frontend
-* **Library:** React.js
-* **Styling:** Tailwind CSS
-* **Icons:** Custom SVG components for a clean medical UI
+- Frontend: React + Tailwind CSS
+- Backend: Spring Boot 3 (Java 21)
+- Data layer (local dev): H2 + Spring Data JPA
+- Containerization: Docker
+- Cloud runtime: Google Cloud Run
+- Container registry: Artifact Registry
+- Infrastructure as Code: Terraform
+- CI/CD: GitHub Actions with OIDC authentication to GCP
 
----
+## Live Deployment
 
-## Key Features
+- Platform: Google Cloud Run
+- Region: europe-central2
+- Service: `medical-clinic-api`
+- OpenAPI JSON: `/v3/api-docs`
+- Swagger UI: `/swagger-ui/index.html`
 
-###  Doctor Management
-* Maintain a database of medical professionals with detailed profiles.
-* Support for multiple specializations including Cardiology, Dermatology, Allergology, General Surgery, and more.
-* Store doctor information: Name, PESEL, Specialization, and full Address.
+Use this command to print the current live backend URL:
 
-### Consulting Room Tracking
-* Manage physical rooms (e.g., Room 101, 201).
-* Track specialized medical facilities per room:
-    * Examination Beds
-    * ECG Machines
-    * Scales and Thermometers
-    * Diagnostic Sets
+```bash
+gcloud run services describe medical-clinic-api --region europe-central2 --format="value(status.url)"
+```
 
-### Advanced Scheduling
-* Check real-time availability for both doctors and rooms within specific time frames.
-* Prevent scheduling conflicts by validating shift start and end times.
-* View specific schedules directly within the Doctor or Room detail modals.
+## Core Features
 
-### Patient Registry
-* Register patients with personal data, PESEL identification, and contact addresses.
-* Quick-view patient cards for administrative efficiency.
+- Doctor management with detailed profiles and medical specializations
+- Patient registry with personal and address data
+- Consulting room and equipment tracking
+- Schedule management with availability checks and conflict prevention
+- Visit booking and cancellation
 
----
-
-## Database Utilities
-
-The project includes specialized components for managing the data lifecycle:
-* **DatabaseInitializer:** Automatically clears existing records and seeds the database with dummy doctors (e.g., John Doe, Jane Smith), rooms, and patients for testing purposes.
-* **DatabaseClean:** A standalone utility to completely wipe the database.
-
----
-
-## Getting Started
+## Local Development
 
 ### Prerequisites
-* JDK 21 or higher
-* Node.js and npm
-* Gradle (or use the included Gradle Wrapper)
 
-### Installation
+- JDK 21+
+- Node.js + npm
+- Docker (optional, for container tests)
 
-1. **Backend:**
-   * Navigate to the `backend-spring-boot` directory.
-   * Run the application: 
-     ```bash
-     ./gradlew bootRun
-     ```
-   * The API will be available at `http://localhost:8080`.
+### Backend
 
-2. **Frontend:**
-   * Navigate to the frontend folder.
-   * Install dependencies:
-     ```bash
-     npm install
-     ```
-   * Start the development server:
-     ```bash
-     npm start
-     ```
-   * Access the UI at `http://localhost:3000`.
+From `backend-spring-boot`:
 
----
+```bash
+# Linux/macOS
+./gradlew clean test bootRun
+
+# Windows (PowerShell)
+.\gradlew.bat clean test bootRun
+```
+
+Backend runs on `http://localhost:8080`.
+
+### Frontend
+
+From `frontend`:
+
+```bash
+npm install
+npm start
+```
+
+Frontend runs on `http://localhost:3000`.
+
+Optional local API target override:
+
+```bash
+REACT_APP_API_BASE_URL=http://localhost:8080
+```
 
 ## API Overview
 
-The React frontend communicates with the following REST endpoints:
-* `/doctors` - CRUD operations for medical staff.
-* `/patients` - Management of patient records.
-* `/consulting-room` - Management of room equipment and availability.
-* `/schedules` - Assignment of shifts and availability checks.
-* `/visits` - Visit availability, booking, and cancellation.
+- `/doctors` - CRUD operations for medical staff
+- `/patients` - patient records management
+- `/consulting-room` - room equipment and room data
+- `/schedules` - shifts and availability checks
+- `/visits` - visit availability, booking, cancellation
+
+## Database Utilities (Local Only)
+
+The project includes helper tools intended for local/dev usage:
+
+- `DatabaseInitializer` - clears and seeds sample data
+- `DatabaseClean` - wipes data from repositories
+
+These tools should not be used against production data.
+
+## CI/CD Pipeline
+
+### Backend workflow
+
+Workflow file: `.github/workflows/backend-cloudrun.yml`
+
+On push to `main` (backend changes), the pipeline:
+
+1. Runs backend tests
+2. Builds Docker image
+3. Pushes image to Artifact Registry
+4. Deploys to Cloud Run
+5. Routes traffic to the latest revision and cleans up old revisions
+
+Authentication uses GitHub OIDC and Workload Identity Federation (no long-lived JSON key in repo).
+
+Required GitHub repository secrets:
+
+- `GCP_PROJECT_ID`
+- `GCP_SERVICE_ACCOUNT_EMAIL`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+
+### Frontend workflow
+
+Workflow file: `.github/workflows/frontend-pages.yml`
+
+The frontend workflow runs after successful completion of the backend workflow and can also be triggered manually.
+
+During build, it authenticates to GCP via OIDC, resolves the current backend Cloud Run service URL, and injects it as `REACT_APP_API_BASE_URL`.
+
+This keeps frontend and backend deployments consistent without manually maintaining a separate frontend API URL variable.
+
+## Infrastructure as Code
+
+Terraform configuration is in `infra/environments/dev`.
+
+Managed resources include:
+
+- Required GCP APIs (Run, Artifact Registry, Cloud Build)
+- Artifact Registry repository
+- Cloud Run runtime service account and IAM binding
+- Cloud Run service and public invoker IAM
+
+Quick start:
+
+```bash
+cd infra/environments/dev
+terraform init
+terraform plan
+terraform apply
+```
+
+If resources already exist from manual setup, import them first (see `infra/README.md`).
