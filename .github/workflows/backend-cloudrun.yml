@@ -53,10 +53,18 @@ jobs:
       - name: Configure project
         run: gcloud config set project "$PROJECT_ID"
 
-      - name: Build and push image with Cloud Build
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+
+      - name: Build Docker image
         run: |
-          gcloud builds submit ./backend-spring-boot \
-            --tag "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:${{ github.sha }}"
+          docker build \
+            -t "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:${{ github.sha }}" \
+            ./backend-spring-boot
+
+      - name: Push Docker image
+        run: |
+          docker push "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:${{ github.sha }}"
 
       - name: Deploy to Cloud Run
         run: |
@@ -66,6 +74,28 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --port 8080
+
+      - name: Keep only latest revision
+        run: |
+          LATEST_REVISION=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format='value(status.latestReadyRevisionName)')
+          if [ -z "$LATEST_REVISION" ]; then
+            echo "Could not resolve latest revision."
+            exit 1
+          fi
+
+          gcloud run services update-traffic "$SERVICE_NAME" \
+            --region "$REGION" \
+            --to-revisions "$LATEST_REVISION"=100
+
+          OLD_REVISIONS=$(gcloud run revisions list \
+            --service "$SERVICE_NAME" \
+            --region "$REGION" \
+            --sort-by='~metadata.creationTimestamp' \
+            --format='value(metadata.name)' | tail -n +2)
+
+          for REVISION in $OLD_REVISIONS; do
+            gcloud run revisions delete "$REVISION" --region "$REGION" --quiet || true
+          done
 
       - name: Print service URL
         run: |
