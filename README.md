@@ -1,12 +1,12 @@
 # Medical Clinic Management System
 
-A comprehensive full-stack application designed to manage medical clinic operations, including staff scheduling, patient registration, and consulting room equipment tracking.
+A full-stack application designed to manage medical clinic operations, including staff scheduling, patient registration, and consulting room equipment tracking.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 ### Backend
 * **Framework:** Spring Boot 3
-* **Language:** Java 17+
+* **Language:** Java 21+
 * **Database Access:** Spring Data JPA (via Repositories for Doctors, Patients, Rooms, and Schedules)
 * **Error Handling:** Global REST Controller Advice for validation and exception mapping
 
@@ -17,14 +17,14 @@ A comprehensive full-stack application designed to manage medical clinic operati
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 👨‍⚕️ Doctor Management
+###  Doctor Management
 * Maintain a database of medical professionals with detailed profiles.
 * Support for multiple specializations including Cardiology, Dermatology, Allergology, General Surgery, and more.
 * Store doctor information: Name, PESEL, Specialization, and full Address.
 
-### 🏥 Consulting Room Tracking
+### Consulting Room Tracking
 * Manage physical rooms (e.g., Room 101, 201).
 * Track specialized medical facilities per room:
     * Examination Beds
@@ -32,18 +32,18 @@ A comprehensive full-stack application designed to manage medical clinic operati
     * Scales and Thermometers
     * Diagnostic Sets
 
-### 📅 Advanced Scheduling
+### Advanced Scheduling
 * Check real-time availability for both doctors and rooms within specific time frames.
 * Prevent scheduling conflicts by validating shift start and end times.
 * View specific schedules directly within the Doctor or Room detail modals.
 
-### 👥 Patient Registry
+### Patient Registry
 * Register patients with personal data, PESEL identification, and contact addresses.
 * Quick-view patient cards for administrative efficiency.
 
 ---
 
-## 🛠️ Database Utilities
+## Database Utilities
 
 The project includes specialized components for managing the data lifecycle:
 * **DatabaseInitializer:** Automatically clears existing records and seeds the database with dummy doctors (e.g., John Doe, Jane Smith), rooms, and patients for testing purposes.
@@ -51,20 +51,20 @@ The project includes specialized components for managing the data lifecycle:
 
 ---
 
-## 🏁 Getting Started
+## Getting Started
 
 ### Prerequisites
-* JDK 17 or higher
+* JDK 21 or higher
 * Node.js and npm
-* Maven
+* Gradle (or use the included Gradle Wrapper)
 
 ### Installation
 
 1. **Backend:**
-   * Navigate to the root directory.
+   * Navigate to the `backend-spring-boot` directory.
    * Run the application: 
      ```bash
-     ./mvnw spring-boot:run
+     ./gradlew bootRun
      ```
    * The API will be available at `http://localhost:8080`.
 
@@ -82,10 +82,11 @@ The project includes specialized components for managing the data lifecycle:
 
 ---
 
-## 🔗 API Overview
+## API Overview
 
 The React frontend communicates with the following REST endpoints:
 * `/doctors` - CRUD operations for medical staff.
 * `/patients` - Management of patient records.
 * `/consulting-room` - Management of room equipment and availability.
 * `/schedules` - Assignment of shifts and availability checks.
+* `/visits` - Visit availability, booking, and cancellation.
