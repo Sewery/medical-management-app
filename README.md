@@ -4,6 +4,8 @@ Full-stack medical clinic application with a production-style DevOps setup on GC
 
 The system supports doctor, patient, consulting room, schedule, and visit management. The backend is deployed to Google Cloud Run, infrastructure is managed with Terraform, and deployments are automated with GitHub Actions.
 
+This repository is primarily backend-focused (Spring Boot + domain modules), with a React frontend used as an API client.
+
 ## Architecture Summary
 
 - Frontend: React + Tailwind CSS
@@ -23,11 +25,7 @@ The system supports doctor, patient, consulting room, schedule, and visit manage
 - OpenAPI JSON: `/v3/api-docs`
 - Swagger UI: `/swagger-ui/index.html`
 
-Use this command to print the current live backend URL:
-
-```bash
-gcloud run services describe medical-clinic-api --region europe-central2 --format="value(status.url)"
-```
+Note: the backend endpoint is resolved dynamically during CI/CD (instead of being hardcoded in the repository), so the exact URL may change between deployments.
 
 ## Core Features
 
@@ -37,7 +35,15 @@ gcloud run services describe medical-clinic-api --region europe-central2 --forma
 - Schedule management with availability checks and conflict prevention
 - Visit booking and cancellation
 
-## Local Development
+## Backend Engineering Notes
+
+- Layered backend structure: `presentation`, `application`, `domain`, `infrastructure`
+- DTO validation with Bean Validation (`@Valid`, constraints in request models)
+- Centralized REST error mapping via global exception handler
+- Repository-based persistence with Spring Data JPA
+- Local data lifecycle helpers for development and testing (`DatabaseInitializer`, `DatabaseClean`)
+
+## Local Development Notes
 
 ### Prerequisites
 
@@ -47,34 +53,16 @@ gcloud run services describe medical-clinic-api --region europe-central2 --forma
 
 ### Backend
 
-From `backend-spring-boot`:
-
-```bash
-# Linux/macOS
-./gradlew clean test bootRun
-
-# Windows (PowerShell)
-.\gradlew.bat clean test bootRun
-```
-
-Backend runs on `http://localhost:8080`.
+- Module: `backend-spring-boot`
+- Build tool: Gradle Wrapper
+- Default local API port: `8080`
 
 ### Frontend
 
-From `frontend`:
-
-```bash
-npm install
-npm start
-```
-
-Frontend runs on `http://localhost:3000`.
-
-Optional local API target override:
-
-```bash
-REACT_APP_API_BASE_URL=http://localhost:8080
-```
+- Module: `frontend`
+- Tooling: React Scripts + npm
+- Default local UI port: `3000`
+- API base can be overridden with `REACT_APP_API_BASE_URL`
 
 ## API Overview
 
@@ -102,10 +90,12 @@ Workflow file: `.github/workflows/backend-cloudrun.yml`
 On push to `main` (backend changes), the pipeline:
 
 1. Runs backend tests
-2. Builds Docker image
+2. Builds Docker image in GitHub Actions runner
 3. Pushes image to Artifact Registry
 4. Deploys to Cloud Run
-5. Routes traffic to the latest revision and cleans up old revisions
+5. Routes traffic to the latest ready revision
+
+Revision cleanup is configured for this project to minimize retained inactive revisions. In production systems, keeping at least one rollback revision is usually recommended.
 
 Authentication uses GitHub OIDC and Workload Identity Federation (no long-lived JSON key in repo).
 
@@ -131,18 +121,9 @@ Terraform configuration is in `infra/environments/dev`.
 
 Managed resources include:
 
-- Required GCP APIs (Run, Artifact Registry, Cloud Build)
+- Required GCP APIs (Run, Artifact Registry)
 - Artifact Registry repository
 - Cloud Run runtime service account and IAM binding
 - Cloud Run service and public invoker IAM
 
-Quick start:
-
-```bash
-cd infra/environments/dev
-terraform init
-terraform plan
-terraform apply
-```
-
-If resources already exist from manual setup, import them first (see `infra/README.md`).
+For implementation and execution details (including import flow for existing resources), see `infra/README.md`.
