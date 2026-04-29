@@ -1,6 +1,6 @@
 # Medical Clinic Management System
 
-Full-stack medical clinic application with a production-style DevOps setup on GCP.
+Full-stack medical clinic application with a  DevOps setup on GCP.
 
 The system supports doctor, patient, consulting room, schedule, and visit management. The backend is deployed to Google Cloud Run, infrastructure is managed with Terraform, and deployments are automated with GitHub Actions.
 
@@ -26,6 +26,7 @@ This repository is primarily backend-focused (Spring Boot + domain modules), wit
 - Swagger UI: `/swagger-ui/index.html`
 
 Note: the backend endpoint is resolved dynamically during CI/CD (instead of being hardcoded in the repository), so the exact URL may change between deployments.
+The GitHub Actions workflow prints the current backend Cloud Run URL in the job logs after deploy, and that is the URL you should open in the browser or use for API requests. This means you can directly test the live backend yourself after each successful deployment.
 
 ## Core Features
 
@@ -94,6 +95,8 @@ On push to `main` (backend changes), the pipeline:
 3. Pushes image to Artifact Registry
 4. Deploys to Cloud Run
 5. Routes traffic to the latest ready revision
+
+The workflow also prints the deployed backend URL, so you can copy it directly from CI/CD logs after a successful run and immediately test the API in the browser, Swagger UI, or with curl/Postman.
 
 Revision cleanup is configured for this project to minimize retained inactive revisions. In production systems, keeping at least one rollback revision is usually recommended.
 
